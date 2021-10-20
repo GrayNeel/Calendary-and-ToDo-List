@@ -10,7 +10,7 @@ Two person hours is the effort of one person working 2 hours, or 2 persons worki
 |    Week     | documentation | brainstorming | GUI  | client | server |
 | :---------: | :-----------: | :-----------: | :--: | :----: | :----: |
 | oct 11 - 17 |     3 + 3     |     3 + 3     |      |        |        |
-| oct 18 - 24 |               |               |      |        |        |
+| oct 18 - 24 |               |               |      |        |   8    |
 | oct 25 - 31 |               |               |      |        |        |
 |  nov 1 - 7  |               |               |      |        |        |
 | nov 8 - 14  |               |               |      |        |        |
