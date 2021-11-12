@@ -21,12 +21,21 @@ find_package(Qt6 COMPONENTS Network REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        dialog.cpp
-        dialog.h
-        dialog.ui
+        gui/mainwindow.cpp
+        gui/mainwindow.h
+        gui/mainwindow.ui
+        gui/dialog.cpp
+        gui/dialog.h
+        gui/dialog.ui
+        logic/client.h
+        logic/client.cpp
+        logic/calendar.h
+        logic/calendar.cpp
+        logic/event.h
+        logic/event.cpp
+        logic/event_api.cpp
+        logic/todo.h
+        logic/todo.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
