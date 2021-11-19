@@ -13,3 +13,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
+void MainWindow::on_actionApri_calendario_triggered()
+{
+
+    n.setModal("true");
+    n.show();
+}
+
