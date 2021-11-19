@@ -8,6 +8,8 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
+#include "logic/client.h"
+
 namespace Ui {
 class Dialog;
 }
@@ -19,24 +21,24 @@ class Dialog : public QDialog
 public:
     explicit Dialog(QWidget *parent = nullptr);
     ~Dialog();
+    void setClient(Client *client);
 
 public slots:
-    void handleAuth(QNetworkReply *reply, QAuthenticator *authenticator) const;
-    void handleHTTPError() const;
+
 
 private slots:
     void on_loginButton_clicked();
 //    void handleHTTPError(void);
 
+signals:
+    void eventAddCalendar(QString username, QString password, QString url);
+
+
 private:
     Ui::Dialog *ui;
 
     //TODO: Da spostare nel back-end
-    QString username;
-    QString password;
-    QString url;
-    QNetworkReply *reply;
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
 };
 
 #endif // DIALOG_H
