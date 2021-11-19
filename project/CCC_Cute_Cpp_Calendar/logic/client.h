@@ -6,7 +6,9 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QByteArray>
 #include <QBuffer>
+#include <QDomDocument>
 #include "calendar.h"
 
 
@@ -16,21 +18,26 @@ class Client : public QObject
 public:
     explicit Client(QObject *parent = nullptr);
     void addCalendar();
-private:
-    QList<Calendar*> _calendarList;
-    QNetworkReply *reply;
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QString username;
-    QString password;
 
-signals:
-
-private slots:
-
-    void handleAuth(QNetworkReply *reply, QAuthenticator *authenticator) const;
-    void handleHTTPError() const;
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
+signals:
+    void requestSyncToken(void);
+
+private:
+    QList<Calendar*> _calendarList;
+    QNetworkReply *_reply;
+    QNetworkAccessManager *_manager = new QNetworkAccessManager(this);
+    QString _username;
+    QString _password;
+    QString _url;
+    QString _replyStatus;
+
+private slots:
+    void handleRequestSyncToken(void);
+    void checkResponseStatus();
+    void handleAuthentication(QNetworkReply *reply, QAuthenticator *authenticator) const;
+    void handleRequestSyncTokenFinished() const;
 };
 
 #endif // CLIENT_H

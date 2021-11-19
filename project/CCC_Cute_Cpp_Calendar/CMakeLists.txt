@@ -19,6 +19,9 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 # Include the QT Network library for API calls
 find_package(Qt6 COMPONENTS Network REQUIRED)
 
+# Include the QT XML Library for APIs
+find_package(Qt6 COMPONENTS Xml REQUIRED)
+
 set(PROJECT_SOURCES
         main.cpp
         gui/mainwindow.cpp
@@ -64,6 +67,8 @@ endif()
 target_link_libraries(CCC_Cute_Cpp_Calendar PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 # Include the QT Network library for API calls
 target_link_libraries(CCC_Cute_Cpp_Calendar PRIVATE Qt6::Network)
+# Include the QT XML Library for APIs
+target_link_libraries(CCC_Cute_Cpp_Calendar PRIVATE Qt6::Xml)
 
 set_target_properties(CCC_Cute_Cpp_Calendar PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
