@@ -44,6 +44,10 @@ private:
     QNetworkAccessManager *_manager;
     QString _replyStatus;
     int _statusCode;
+
+    QString _displayName;
+    QString _cTag;
+    QString _syncToken;
 };
 
 #endif // CALENDAR_H

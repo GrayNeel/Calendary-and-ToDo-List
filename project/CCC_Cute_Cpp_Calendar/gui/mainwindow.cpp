@@ -21,14 +21,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionApri_calendario_triggered()
 {
-    if(dialog == NULL)
+    if(dialog == NULL) {
         dialog = new Dialog();
+        connect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
+        connect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
+        connect(client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
+    }
 
     dialog->setModal("true");
-    connect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
-    connect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
-    connect(client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
-    //connect(client, &CLient::eventoConcluso, this, &MainWindow::deleteDialog);
     dialog->show();
 }
 

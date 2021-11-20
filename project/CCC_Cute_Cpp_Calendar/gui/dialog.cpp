@@ -27,3 +27,9 @@ void Dialog::on_loginButton_clicked()
 void Dialog::handleResponse(QString errorMessage) {
     ui->errorMessageLabel->setText(errorMessage);
 }
+
+void Dialog::on_cancelButton_clicked()
+{
+    hide();
+}
+

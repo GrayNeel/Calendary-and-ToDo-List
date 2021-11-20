@@ -30,9 +30,10 @@ private slots:
     void on_loginButton_clicked();
 //    void handleHTTPError(void);
 
+    void on_cancelButton_clicked();
+
 signals:
     void eventAddCalendar(QString username, QString password, QString url);
-
 
 private:
     Ui::Dialog *ui;

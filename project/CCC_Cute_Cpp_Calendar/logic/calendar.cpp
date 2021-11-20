@@ -117,6 +117,28 @@ void Calendar::checkResponseStatus() {
 
 void Calendar::handleRequestSyncTokenFinished(void) {
     qDebug() << "RequestSyncTokenFinished";
-    if(_statusCode >= 200 && _statusCode < 300)
+    if(_statusCode >= 200 && _statusCode < 300) {
+        QDomDocument doc;
+
+        doc.setContent(_reply);
+
+        QDomNodeList response = doc.elementsByTagName("d:prop");
+        for (int i = 0; i < response.size(); i++) {
+            QDomNode n = response.item(i);
+            QDomElement displayname = n.firstChildElement("d:displayname");
+            if (!displayname.isNull())
+                _displayName = displayname.text();
+
+            QDomElement ctag = n.firstChildElement("cs:getctag");
+            if (!ctag.isNull())
+                _cTag = ctag.text();
+
+            QDomElement syncToken = n.firstChildElement("d:sync-token");
+            if (!syncToken.isNull())
+                _syncToken = syncToken.text();
+        }
+
         emit calendarAdded();
+    }
+
 }

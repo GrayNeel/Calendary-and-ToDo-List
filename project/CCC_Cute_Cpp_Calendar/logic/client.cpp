@@ -44,16 +44,3 @@ void Client::handleAddCalendarFinished() {
 
     emit closeDialog();
 }
-
-//void Client::handleAddCalendar(QString username, QString password, QString url)
-//{
-//    Calendar cal = new Calendar();
-//    _calendars.put(cal);
-//    conncet(cal, SIGNAL(uccidimi()), this, SLOT(tuttoMale()))
-//    connect (this, cal)
-//    emit initializeCalendar(); //nello slot della clase Calendar associato a initialize, fa la PROPFIND per il token e i controlli ecc (se tutto ok prende gli eventi)
-//}
-
-// funzione tuttoMale() {
-// delete cal
-// }

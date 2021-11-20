@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>CCC: Cute Cpp Calendar</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -34,7 +34,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionApri_calendario">
    <property name="text">
-    <string>Apri calendario</string>
+    <string>Apri un calendario...</string>
    </property>
   </action>
  </widget>
