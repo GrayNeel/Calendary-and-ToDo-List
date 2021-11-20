@@ -24,6 +24,8 @@ public:
     const QString &url() const;
     void setUrl(const QString &newUrl);
 
+    const QString &displayName() const;
+
 signals:
     void calendarRetrieveError(QString errorMessage);
     void calendarAdded();

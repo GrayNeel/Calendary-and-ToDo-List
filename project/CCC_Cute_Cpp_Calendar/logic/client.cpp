@@ -42,5 +42,5 @@ void Client::handleAddCalendarFinished() {
     disconnect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     disconnect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
 
-    emit closeDialog();
+    emit closeDialog(cal);
 }

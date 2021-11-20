@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtWidgets>
+#include <QGroupBox>
+
 #include "dialog.h"
 
 #include "logic/client.h"
@@ -21,11 +24,16 @@ public:
 
 private slots:
     void on_actionApri_calendario_triggered();
-    void handleCloseDialog();
+    void handleCloseDialog(Calendar* cal);
+
+    void on_scrollArea_customContextMenuRequested(const QPoint &pos);
 
 private:
     Ui::MainWindow *ui;
     Dialog* dialog;
     Client* client;
+
+    QWidget* _test;
+    QHBoxLayout* layout;
 };
 #endif // MAINWINDOW_H

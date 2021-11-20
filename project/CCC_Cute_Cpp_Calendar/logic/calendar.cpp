@@ -142,3 +142,8 @@ void Calendar::handleRequestSyncTokenFinished(void) {
     }
 
 }
+
+const QString &Calendar::displayName() const
+{
+    return _displayName;
+}

@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     client = new Client();
     dialog = NULL;
+    _test = new QWidget();
+    layout = new QHBoxLayout();
 }
 
 MainWindow::~MainWindow()
@@ -32,11 +34,23 @@ void MainWindow::on_actionApri_calendario_triggered()
     dialog->show();
 }
 
-void MainWindow::handleCloseDialog() {
+void MainWindow::handleCloseDialog(Calendar* cal) {
     dialog->hide();
     disconnect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
     disconnect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
     disconnect(client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
     delete dialog;
     dialog = NULL;
+
+    // Create the widget to show calendar on main window
+    QLabel* name = new QLabel(cal->displayName());
+    layout->addWidget(name);
+    _test->setLayout(layout);
+    ui->scrollArea->setWidget(_test);
 }
+
+void MainWindow::on_scrollArea_customContextMenuRequested(const QPoint &pos)
+{
+
+}
+

@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include <QObject>
+#include <QWidget>
 #include <QAuthenticator>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -25,7 +26,7 @@ public slots:
 signals:
     void requestSyncToken(void);
     void dialogErrorMessage(QString errorMessage);
-    void closeDialog();
+    void closeDialog(Calendar* cal);
 
 private:
     QList<Calendar*> _calendarList;
