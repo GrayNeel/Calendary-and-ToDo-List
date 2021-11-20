@@ -24,7 +24,7 @@ public:
     void setClient(Client *client);
 
 public slots:
-
+    void handleResponse(QString errorMessage);
 
 private slots:
     void on_loginButton_clicked();

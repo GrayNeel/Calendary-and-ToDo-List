@@ -21,23 +21,17 @@ public:
 
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
+    void handleAddCalendarError(QString errorMessage);
 signals:
     void requestSyncToken(void);
+    void dialogErrorMessage(QString errorMessage);
+    void closeDialog();
 
 private:
     QList<Calendar*> _calendarList;
-    QNetworkReply *_reply;
-    QNetworkAccessManager *_manager = new QNetworkAccessManager(this);
-    QString _username;
-    QString _password;
-    QString _url;
-    QString _replyStatus;
 
 private slots:
-    void handleRequestSyncToken(void);
-    void checkResponseStatus();
-    void handleAuthentication(QNetworkReply *reply, QAuthenticator *authenticator) const;
-    void handleRequestSyncTokenFinished() const;
+    void handleAddCalendarFinished();
 };
 
 #endif // CLIENT_H

@@ -22,9 +22,8 @@ void Dialog::on_loginButton_clicked()
     QString password = QString(ui->passwordLine->text());
     QString url = QString(ui->urlLine->text());
     emit eventAddCalendar(username, password, url);
-
-    close();
-    //hide();
 }
 
-
+void Dialog::handleResponse(QString errorMessage) {
+    ui->errorMessageLabel->setText(errorMessage);
+}

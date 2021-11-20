@@ -21,6 +21,7 @@ public:
 
 private slots:
     void on_actionApri_calendario_triggered();
+    void handleCloseDialog();
 
 private:
     Ui::MainWindow *ui;
