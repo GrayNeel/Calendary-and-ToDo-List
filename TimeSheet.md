@@ -13,8 +13,8 @@ Two person hours is the effort of one person working 2 hours, or 2 persons worki
 | oct 18 - 24 |               |               |      |        |   8    |
 | oct 25 - 31 |               |               |      |   10   |        |
 |  nov 1 - 7  |               |               |      |   12   |        |
-| nov 8 - 14  |               |               |      |        |        |
-| nov 15 - 21 |               |               |      |        |        |
+| nov 8 - 14  |               |               |      |   12   |        |
+| nov 15 - 21 |               |               |   1  |    7   |        |
 | nov 22 - 28 |               |               |      |        |        |
 | nov 29 - 5  |               |               |      |        |        |
 |             |               |               |      |        |        |
