@@ -16,5 +16,9 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: html
         message: |  #https://help.github.com/en/actions/reference/contexts-and-expression-syntax-for-github-actions#github-context
-          ${{ github.event_name }} commit in ${{ github.repository }} by "${{ github.actor }}". [${{github.sha}}@${{ github.ref }}]
+          <b>${{ github.actor }}</b> created a <b>${{ github.event_name }}</b> commit:
+            Commit message: <i>${{ github.event.commits[0].message }}</i>
+            
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
