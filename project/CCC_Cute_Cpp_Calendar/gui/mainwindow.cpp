@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     client = new Client();
     dialog = NULL;
+    eventDialog = NULL;
     _calBoxes = new QWidget(ui->scrollArea);
     _calBoxesLayout = new QVBoxLayout();
     _calBoxesLayout->setAlignment(Qt::AlignTop);
@@ -20,6 +21,8 @@ MainWindow::~MainWindow()
     delete ui;
     if(dialog != NULL)
         delete dialog;
+    if(eventDialog != NULL)
+        delete eventDialog;
     delete client;
 }
 
@@ -104,5 +107,24 @@ void MainWindow::on_scrollArea_customContextMenuRequested(const QPoint &pos)
 void MainWindow::on_calendarWidget_clicked(const QDate &date)
 {
     //TODO: User selected a date, show Events and ToDo for that date
+}
+
+
+void MainWindow::on_pushButton_clicked()
+{
+    if(eventDialog == NULL) {
+        eventDialog = new EventDialog();
+        connect(eventDialog, &EventDialog::eventAddEvent, client, &Client::handleAddEvent);
+        connect(client, &Client::eventDialogErrorMessage, eventDialog, &EventDialog::handleEventResponse);
+        connect(client, &Client::closeEventDialog, this, &MainWindow::handleCloseEventDialog);
+    }
+
+    eventDialog->setModal("true");
+    eventDialog->show();
+}
+
+//TODO: implement this
+void MainWindow::handleCloseEventDialog(Event* event) {
+
 }
 

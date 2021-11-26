@@ -6,6 +6,7 @@
 #include <QGroupBox>
 
 #include "dialog.h"
+#include "eventdialog.h"
 
 #include "logic/client.h"
 
@@ -30,9 +31,14 @@ private slots:
 
     void on_calendarWidget_clicked(const QDate &date);
 
+    void on_pushButton_clicked();
+    void handleCloseEventDialog(Event* event);
+
+
 private:
     Ui::MainWindow *ui;
     Dialog* dialog;
+    EventDialog* eventDialog;
     Client* client;
 
     QMap<QString,QVBoxLayout*> _boxesMap;

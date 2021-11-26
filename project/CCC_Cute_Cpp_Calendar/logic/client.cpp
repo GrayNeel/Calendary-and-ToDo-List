@@ -49,3 +49,13 @@ void Client::handleAddCalendarFinished() {
 
     emit closeDialog(cal);
 }
+
+//TODO: implement this
+void Client::handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
+
+}
+
+//TODO: implement this
+void Client::handleAddEventError(QString errorMessage) {
+
+}
