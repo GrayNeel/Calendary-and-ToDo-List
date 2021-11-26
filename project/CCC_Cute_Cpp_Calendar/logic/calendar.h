@@ -37,6 +37,8 @@ private slots:
     void handleAuthentication(QNetworkReply *reply, QAuthenticator *authenticator) const;
     void checkResponseStatus();
     void handleRequestSyncTokenFinished();
+    void APIRequestVCalendarObjects(void);
+    void handleRequestVCalendarObjectsFinished();
 
 private:
     QString _username;

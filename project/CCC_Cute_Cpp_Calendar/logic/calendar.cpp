@@ -42,6 +42,11 @@ void Calendar::setUrl(const QString &newUrl)
     _url = newUrl;
 }
 
+const QString &Calendar::displayName() const
+{
+    return _displayName;
+}
+
 /*************************** API Requests to CalDAV Server ****************************/
 
 /**
@@ -55,6 +60,7 @@ void Calendar::APIRequestSyncToken(void) {
     request.setUrl(QUrl(_url));
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
     request.setRawHeader("Depth", "0");
+    request.setRawHeader("Prefer", "return-minimal");
     request.setRawHeader("Content-Type", "application/xml; charset=utf-8");
 
     // Building the Body
@@ -116,7 +122,7 @@ void Calendar::checkResponseStatus() {
 }
 
 void Calendar::handleRequestSyncTokenFinished(void) {
-    qDebug() << "RequestSyncTokenFinished";
+//    qDebug() << "RequestSyncTokenFinished";
     if(_statusCode >= 200 && _statusCode < 300) {
         QDomDocument doc;
 
@@ -138,12 +144,65 @@ void Calendar::handleRequestSyncTokenFinished(void) {
                 _syncToken = syncToken.text();
         }
 
-        emit calendarAdded();
+        //If i'm here everything is ok and I will start downloading VCalObjects
+        APIRequestVCalendarObjects();
     }
 
 }
 
-const QString &Calendar::displayName() const
-{
-    return _displayName;
+/**
+ * @brief This API Requests the list of VCalendar Objects from a specific fetched calendar
+ */
+void Calendar::APIRequestVCalendarObjects(void) {
+    QNetworkRequest request;
+
+    // Building the header of a REPORT request to get VCalendar Objects
+
+    request.setUrl(QUrl(_url));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    request.setRawHeader("Depth", "1");
+    request.setRawHeader("Prefer", "return-minimal");
+    request.setRawHeader("Content-Type", "application/xml; charset=utf-8");
+
+    // Building the Body
+
+    QString requestString = "<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">\r\n"
+                                "<d:prop>\r\n"
+                                    "<d:getetag />\r\n"
+                                    "<c:calendar-data />\r\n"
+                                "</d:prop>\r\n"
+                                "<c:filter>\r\n"
+                                    "<c:comp-filter name=\"VCALENDAR\" />\r\n"
+                                "</c:filter>\r\n"
+                           "</c:calendar-query>\r\n";
+
+    QBuffer* buffer = new QBuffer();
+    buffer->open(QIODevice::ReadWrite);
+
+    int bufferSize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+
+    QByteArray contentLength;
+    contentLength.append(QString::number(bufferSize).toStdString());
+
+    request.setRawHeader("Content-Length", contentLength);
+
+    _reply = _manager->sendCustomRequest(request, QByteArray("REPORT"), buffer);
+
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus()));
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleRequestVCalendarObjectsFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
+
+}
+
+/**
+ * TODO: Manage the fetched VCalObjects and add events/todos to list
+ */
+void Calendar::handleRequestVCalendarObjectsFinished(void) {
+    qDebug() << "requestVCalendarObjectsFinished";
+    if(_statusCode >= 200 && _statusCode < 300) {
+        emit calendarAdded();
+    }
 }
