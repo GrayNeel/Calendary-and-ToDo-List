@@ -10,6 +10,17 @@ class Event : public QObject
 public:
     explicit Event(QObject *parent = nullptr);
 
+    void setDescription(const QString &newDescription);
+
+    void setUid(const QString &newUid);
+    void setFilename(const QString &newFilename);
+    void setSummary(const QString &newSummary);
+    void setLocation(const QString &newLocation);
+    void setRrule(const QString &newRrule);
+    void setExdate(const QString &newExdate);
+    void setStartDateTime(const QDateTime &newStartDateTime);
+    void setEndDateTime(const QDateTime &newEndDateTime);
+
 signals:
 
 public slots:
