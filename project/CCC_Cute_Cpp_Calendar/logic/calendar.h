@@ -10,6 +10,9 @@
 #include <QBuffer>
 #include <QDomDocument>
 
+#include "event.h"
+#include "todo.h"
+
 class Calendar : public QObject
 {
     Q_OBJECT
@@ -52,6 +55,9 @@ private:
     QString _displayName;
     QString _cTag;
     QString _syncToken;
+
+    QList<Event*> _eventsList;
+    QList<Todo*> _todosList;
 };
 
 #endif // CALENDAR_H

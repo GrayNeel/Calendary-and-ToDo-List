@@ -36,6 +36,11 @@ void Client::handleAddCalendarError(QString errorMessage) {
     emit dialogErrorMessage(errorMessage);
 }
 
+const int Client::getCalendarCount() const
+{
+    return _calendarList.count();
+}
+
 void Client::handleAddCalendarFinished() {
     Calendar* cal = _calendarList.last();
 

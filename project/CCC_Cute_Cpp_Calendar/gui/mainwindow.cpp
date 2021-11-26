@@ -8,12 +8,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     client = new Client();
     dialog = NULL;
-    _test = new QWidget();
-    layout = new QHBoxLayout();
+    _calBoxes = new QWidget(ui->scrollArea);
+    _calBoxesLayout = new QVBoxLayout();
+    _calBoxesLayout->setAlignment(Qt::AlignTop);
 }
 
 MainWindow::~MainWindow()
 {
+    delete _calBoxesLayout;
+    delete _calBoxes;
     delete ui;
     if(dialog != NULL)
         delete dialog;
@@ -42,15 +45,64 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     delete dialog;
     dialog = NULL;
 
-    // Create the widget to show calendar on main window
+    /**
+     * In this phase there will be the creation of the box to be shown on the UI
+     *
+     **/
+
+    // The first line will show the name of the calendar
+    QHBoxLayout* firstLine = new QHBoxLayout();
     QLabel* name = new QLabel(cal->displayName());
-    layout->addWidget(name);
-    _test->setLayout(layout);
-    ui->scrollArea->setWidget(_test);
+    name->setStyleSheet("font-weight: bold;");
+    firstLine->addWidget(name);
+
+    // The second line will show the URL of the calendar
+    QHBoxLayout* secondLine = new QHBoxLayout();
+    QLabel* defaultUrl = new QLabel(QString("URL:"));
+    secondLine->addWidget(defaultUrl);
+    QLabel* urlCal = new QLabel(cal->url());
+    secondLine->addWidget(urlCal);
+
+    // The third line will show the button to remove the calendar
+    QHBoxLayout* thirdLine = new QHBoxLayout();
+    QPushButton* removeButton = new QPushButton("Rimuovi", this);
+    thirdLine->addWidget(removeButton);
+
+    // Build now the whole box
+    QVBoxLayout* fullBox = new QVBoxLayout();
+    fullBox->setAlignment(Qt::AlignLeft);
+    fullBox->addLayout(firstLine);
+    fullBox->addLayout(secondLine);
+    fullBox->addLayout(thirdLine);
+
+    // Add the new box to the map
+    _boxesMap.insert(cal->displayName(),fullBox);
+
+    // Refresh
+//    QVBoxLayout* calBoxesLayout = new QVBoxLayout(_calBoxes);
+//    calBoxesLayout->setAlignment(Qt::AlignTop);
+
+//    QMap<QString,QVBoxLayout*>::iterator it;
+//    for (it = _boxesMap.begin(); it != _boxesMap.end(); it++) {
+//        calBoxesLayout->addLayout(it.value());
+//        qDebug() << "Itero";
+//    }
+
+    _calBoxesLayout->addLayout(fullBox);
+
+    // Show the whole list to the UI
+    _calBoxes->setLayout(_calBoxesLayout);
+    ui->scrollArea->setWidget(_calBoxes);
 }
 
 void MainWindow::on_scrollArea_customContextMenuRequested(const QPoint &pos)
 {
 
+}
+
+
+void MainWindow::on_calendarWidget_clicked(const QDate &date)
+{
+    //TODO: User selected a date, show Events and ToDo for that date
 }
 

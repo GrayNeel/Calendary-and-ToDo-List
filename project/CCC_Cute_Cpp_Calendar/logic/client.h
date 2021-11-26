@@ -20,6 +20,10 @@ public:
     explicit Client(QObject *parent = nullptr);
     void addCalendar();
 
+    const int getCalendarCount() const;
+
+    void setCalendarList(const QList<Calendar *> &newCalendarList);
+
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
     void handleAddCalendarError(QString errorMessage);
@@ -30,6 +34,7 @@ signals:
 
 private:
     QList<Calendar*> _calendarList;
+
 
 private slots:
     void handleAddCalendarFinished();
