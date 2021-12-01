@@ -92,19 +92,6 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     fullBox->addLayout(secondLine);
     fullBox->addLayout(thirdLine);
 
-    // Add the new box to the map
-    _boxesMap.insert(cal->url(),fullBox);
-
-    // Refresh
-    //    QVBoxLayout* calBoxesLayout = new QVBoxLayout(_calBoxes);
-    //    calBoxesLayout->setAlignment(Qt::AlignTop);
-
-    //    QMap<QString,QVBoxLayout*>::iterator it;
-    //    for (it = _boxesMap.begin(); it != _boxesMap.end(); it++) {
-    //        calBoxesLayout->addLayout(it.value());
-    //        qDebug() << "Itero";
-    //    }
-
     // There will be one "fullBox" for each calendar
     _calBoxesLayout->addLayout(fullBox);
 
@@ -145,11 +132,10 @@ void MainWindow::handleCloseEventDialog(Event* event) {
 
 void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
 
-    // Remove the calendar entry from the boxex map
-    _boxesMap.remove(cal->url());
-    // Then temporary hide the content of the ScrollArea
+    // Temporary hide the content of the ScrollArea
     ui->scrollArea->widget()->hide();
 
+    // Search for the calendar to be removed
     for(int i =0; i<_calBoxesLayout->count(); i++){
         QWidget *url = _calBoxesLayout->itemAt(i)->layout()->itemAt(1)->layout()->itemAt(1)->widget();
         QLabel *label = qobject_cast<QLabel *>(url);

@@ -43,8 +43,6 @@ private:
     EventDialog* eventDialog;
     Client* client;
 
-    QMap<QString,QVBoxLayout*> _boxesMap;
-
     QWidget* _calBoxes;
     QVBoxLayout* _calBoxesLayout;
 };
