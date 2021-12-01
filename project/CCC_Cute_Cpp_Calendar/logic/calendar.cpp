@@ -209,6 +209,6 @@ void Calendar::handleRequestVCalendarObjectsFinished(void) {
 
 
 void Calendar::handleRemoveCalendar(){
-    qDebug() << "Sono lo slot dentro calendar";
+    // qDebug() << "Sono lo slot dentro calendar";
     emit removeCalendar(this);
 }

@@ -42,12 +42,14 @@ void MainWindow::on_actionApri_calendario_triggered()
 
 void MainWindow::handleCloseDialog(Calendar* cal) {
     dialog->hide();
+
+    /**
+     *  The alternative to disconnect is to DO NOT delete the dialog
+     *  but clearing the line texts inside of it
+     **/
     disconnect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
     disconnect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
     disconnect(client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
-
-    //o si fanno le disconnect perché si vuole cancellare il dialog
-    //oppure si mantiene sempre lo stesso dialog ma a quel punto vanno puliti i campi
 
     delete dialog;
     dialog = NULL;
@@ -73,12 +75,12 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     // The third line will show the button to remove the calendar
     QHBoxLayout* thirdLine = new QHBoxLayout();
     QPushButton* removeButton = new QPushButton("Rimuovi", this);
-    //Al click del tasto remove:
-    //Segnalo al calendario che lo sto rimuovendo: così lui potrà lanciare una signal  contenente anche il proprio riferimento
+
+    // When "Remove" button is pressed call the calendar's slot that will signal to the client/GUI that it has to be deleted
     connect(removeButton, SIGNAL(clicked()), cal, SLOT(handleRemoveCalendar()));
-    //La mainwindow aggiorna la lista di layout
+    // Mainwindow will update then the layout list
     connect(cal, &Calendar::removeCalendar, this, &MainWindow::handleRemoveCalendarBox);
-    //Il client aggiorna la lista di calendari
+    // Client will update the calendar's list
     connect(cal, &Calendar::removeCalendar, client, &Client::handleRemoveCalendarFromList);
 
     thirdLine->addWidget(removeButton);
@@ -94,16 +96,16 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     _boxesMap.insert(cal->url(),fullBox);
 
     // Refresh
-//    QVBoxLayout* calBoxesLayout = new QVBoxLayout(_calBoxes);
-//    calBoxesLayout->setAlignment(Qt::AlignTop);
+    //    QVBoxLayout* calBoxesLayout = new QVBoxLayout(_calBoxes);
+    //    calBoxesLayout->setAlignment(Qt::AlignTop);
 
-//    QMap<QString,QVBoxLayout*>::iterator it;
-//    for (it = _boxesMap.begin(); it != _boxesMap.end(); it++) {
-//        calBoxesLayout->addLayout(it.value());
-//        qDebug() << "Itero";
-//    }
+    //    QMap<QString,QVBoxLayout*>::iterator it;
+    //    for (it = _boxesMap.begin(); it != _boxesMap.end(); it++) {
+    //        calBoxesLayout->addLayout(it.value());
+    //        qDebug() << "Itero";
+    //    }
 
-    //un fullBox (che è anch'esso una collezione di layout) per ogni calendario
+    // There will be one "fullBox" for each calendar
     _calBoxesLayout->addLayout(fullBox);
 
     // Show the whole list to the UI
@@ -143,16 +145,15 @@ void MainWindow::handleCloseEventDialog(Event* event) {
 
 void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
 
-    //rimuovo una entry cal dalla mappa di boxes
+    // Remove the calendar entry from the boxex map
     _boxesMap.remove(cal->url());
-    //nascondo il contenuto della scrollbar
+    // Then temporary hide the content of the ScrollArea
     ui->scrollArea->widget()->hide();
-    //
 
     for(int i =0; i<_calBoxesLayout->count(); i++){
         QWidget *url = _calBoxesLayout->itemAt(i)->layout()->itemAt(1)->layout()->itemAt(1)->widget();
         QLabel *label = qobject_cast<QLabel *>(url);
-        qDebug() << "Url:" << label->text();
+        // qDebug() << "Url:" << label->text();
         if(cal->url() == label->text()){
             QLayoutItem * tobeRemoved = _calBoxesLayout->itemAt(i)->layout();
             _calBoxesLayout->removeItem(tobeRemoved);
@@ -167,7 +168,7 @@ void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
     _calBoxes = mybox;
     ui->scrollArea->setWidget(mybox);
 
-    //mostro di nuovo il contenuto della scrollbar
+    // Show again scrollbar's content
     ui->scrollArea->widget()->show();
 }
 
