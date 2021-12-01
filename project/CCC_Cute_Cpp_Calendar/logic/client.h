@@ -29,6 +29,7 @@ public slots:
     void handleAddCalendarError(QString errorMessage);
     void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
     void handleAddEventError(QString errorMessage);
+    void handleRemoveCalendarFromList(Calendar* cal);
 
 signals:
     void requestSyncToken(void);
@@ -44,6 +45,7 @@ private:
 
 private slots:
     void handleAddCalendarFinished();
+
 };
 
 #endif // CLIENT_H

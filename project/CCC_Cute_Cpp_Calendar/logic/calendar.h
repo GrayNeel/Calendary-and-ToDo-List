@@ -32,6 +32,7 @@ public:
 signals:
     void calendarRetrieveError(QString errorMessage);
     void calendarAdded();
+    void removeCalendar(Calendar* cal);
 
 public slots:
 
@@ -42,6 +43,7 @@ private slots:
     void handleRequestSyncTokenFinished();
     void APIRequestVCalendarObjects(void);
     void handleRequestVCalendarObjectsFinished();
+    void handleRemoveCalendar();
 
 private:
     QString _username;

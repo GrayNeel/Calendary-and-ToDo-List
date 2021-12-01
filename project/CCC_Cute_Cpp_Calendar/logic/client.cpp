@@ -50,6 +50,12 @@ void Client::handleAddCalendarFinished() {
     emit closeDialog(cal);
 }
 
+void Client::handleRemoveCalendarFromList(Calendar* cal){
+    _calendarList.removeOne(cal);
+    delete cal;
+    qDebug() << "Sono lo slot dentro client";
+}
+
 //TODO: implement this
 void Client::handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
 

@@ -33,7 +33,9 @@ private slots:
 
     void on_pushButton_clicked();
     void handleCloseEventDialog(Event* event);
+    void handleRemoveCalendarBox(Calendar* cal);
 
+    void on_pushButton_2_clicked();
 
 private:
     Ui::MainWindow *ui;
