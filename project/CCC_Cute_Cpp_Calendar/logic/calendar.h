@@ -33,6 +33,7 @@ signals:
     void calendarRetrieveError(QString errorMessage);
     void calendarAdded();
     void removeCalendar(Calendar* cal);
+    void showEventDialog(Calendar* cal);
 
 public slots:
 
@@ -44,6 +45,7 @@ private slots:
     void APIRequestVCalendarObjects(void);
     void handleRequestVCalendarObjectsFinished();
     void handleRemoveCalendar();
+    void handleAddNewEventPopUp();
 
 private:
     QString _username;

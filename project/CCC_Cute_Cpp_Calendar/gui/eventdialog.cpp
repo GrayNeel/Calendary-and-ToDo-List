@@ -27,7 +27,16 @@ void EventDialog::on_confirmButton_clicked()
     emit eventAddEvent(summary, location, description, startDateTime, endDateTime);
 }
 
+void EventDialog::setCal(Calendar *newCal)
+{
+    cal = newCal;
+}
+
 //TODO: Implement this
 void EventDialog::handleEventResponse(QString errorMessage) {
 
+}
+
+void EventDialog::setCalName(QString calName) {
+    ui->calendarNameEdit->setText(calName);
 }

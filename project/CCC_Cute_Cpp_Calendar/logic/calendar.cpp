@@ -212,3 +212,7 @@ void Calendar::handleRemoveCalendar(){
     // qDebug() << "Sono lo slot dentro calendar";
     emit removeCalendar(this);
 }
+
+void Calendar::handleAddNewEventPopUp() {
+    emit showEventDialog(this);
+}

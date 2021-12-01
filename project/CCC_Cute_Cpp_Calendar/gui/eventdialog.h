@@ -2,6 +2,7 @@
 #define EVENTDIALOG_H
 
 #include <QDialog>
+#include "logic/calendar.h"
 
 namespace Ui {
 class EventDialog;
@@ -15,6 +16,9 @@ public:
     explicit EventDialog(QWidget *parent = nullptr);
     ~EventDialog();
 
+    void setCal(Calendar *newCal);
+    void setCalName(QString calname);
+
 signals:
     void eventAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
 
@@ -26,6 +30,7 @@ private slots:
 
 private:
     Ui::EventDialog *ui;
+    Calendar* cal;
 };
 
 #endif // EVENTDIALOG_H

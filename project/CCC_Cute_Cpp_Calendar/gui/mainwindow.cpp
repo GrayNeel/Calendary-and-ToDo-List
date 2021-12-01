@@ -72,7 +72,7 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     QLabel* urlCal = new QLabel(cal->url());
     secondLine->addWidget(urlCal);
 
-    // The third line will show the button to remove the calendar
+    // The third line will show the buttons
     QHBoxLayout* thirdLine = new QHBoxLayout();
     QPushButton* removeButton = new QPushButton("Rimuovi", this);
 
@@ -84,6 +84,13 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     connect(cal, &Calendar::removeCalendar, client, &Client::handleRemoveCalendarFromList);
 
     thirdLine->addWidget(removeButton);
+
+    QPushButton* addEventButton = new QPushButton("Nuovo evento", this);
+
+    // When "Add event" button is pressed call the calendar's slot that will call a slot to show EventDialog and refer to it
+    connect(addEventButton, SIGNAL(clicked()), cal, SLOT(handleAddNewEventPopUp()));
+    connect(cal,&Calendar::showEventDialog,this,&MainWindow::eventShowEventDialog);
+    thirdLine->addWidget(addEventButton);
 
     // Build now the whole box
     QVBoxLayout* fullBox = new QVBoxLayout();
@@ -100,30 +107,12 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     ui->scrollArea->setWidget(_calBoxes);
 }
 
-void MainWindow::on_scrollArea_customContextMenuRequested(const QPoint &pos)
-{
-
-}
-
 
 void MainWindow::on_calendarWidget_clicked(const QDate &date)
 {
     //TODO: User selected a date, show Events and ToDo for that date
 }
 
-
-void MainWindow::on_pushButton_clicked()
-{
-    if(eventDialog == NULL) {
-        eventDialog = new EventDialog();
-        connect(eventDialog, &EventDialog::eventAddEvent, client, &Client::handleAddEvent);
-        connect(client, &Client::eventDialogErrorMessage, eventDialog, &EventDialog::handleEventResponse);
-        connect(client, &Client::closeEventDialog, this, &MainWindow::handleCloseEventDialog);
-    }
-
-    eventDialog->setModal("true");
-    eventDialog->show();
-}
 
 //TODO: implement this
 void MainWindow::handleCloseEventDialog(Event* event) {
@@ -158,11 +147,19 @@ void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
     ui->scrollArea->widget()->show();
 }
 
+void MainWindow::eventShowEventDialog(Calendar* cal) {
+    if(eventDialog == NULL) {
+        eventDialog = new EventDialog();
 
+        // Pair the eventDialog to the calendar
+        eventDialog->setCal(cal);
+        eventDialog->setCalName(cal->displayName());
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    ui->scrollArea->widget()->hide();
-    delete ui->scrollArea->widget();
+        connect(eventDialog, &EventDialog::eventAddEvent, client, &Client::handleAddEvent);
+        connect(client, &Client::eventDialogErrorMessage, eventDialog, &EventDialog::handleEventResponse);
+        connect(client, &Client::closeEventDialog, this, &MainWindow::handleCloseEventDialog);
+    }
+
+    eventDialog->setModal("true");
+    eventDialog->show();
 }
-
