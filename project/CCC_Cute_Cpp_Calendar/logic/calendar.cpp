@@ -108,15 +108,16 @@ void Calendar::checkResponseStatus() {
     _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     if(_statusCode == 0) {
-//        qDebug() << "Bad URL";
+        qDebug() << "Bad URL";
         emit calendarRetrieveError(QString("Wrong URL. Try again!"));
     }
 
     if (_statusCode >= 200 && _statusCode < 300) {
-//        qDebug() << "Good Response: " << statusCode;
+        qDebug() << "Good Response: " << _statusCode;
+        qDebug() << "Evento aggiunto correttamente";
 
     } else {
-//        qDebug() << "Bad Response: " << statusCode;
+        qDebug() << "Bad Response: " << _statusCode;
         emit calendarRetrieveError(QString("Wrong credentials. Try again!"));
     }
 }
@@ -215,4 +216,87 @@ void Calendar::handleRemoveCalendar(){
 
 void Calendar::handleAddNewEventPopUp() {
     emit showEventDialog(this);
+}
+
+//TODO: implement this
+void Calendar::handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
+    //if uid=-1 I have a new event. Constructor will choose a new one based on timestamp
+    //if filename is empty constructor create it basing on uid
+    //update API is based on a specific uid
+    Event* newEvent = new Event(QString("-1"), QString(""), summary, location, description, QString("rrule"), QString("exdata"), startDateTime, endDateTime);
+    _eventsList.append(newEvent);
+    //connect(this,SIGNAL(addEvent()),newEvent,SLOT(APIAddEvent()));
+    qDebug() << "Ho aggiunto l'evento: " << newEvent->summary();
+    APIAddEvent(newEvent);
+    //delete cal;
+}
+/**
+ *
+ * @brief This API push a new event in a VCalendar Object from a specific calendar
+ */
+void Calendar::APIAddEvent(Event* event) {
+    //https://datatracker.ietf.org/doc/html/rfc4791#section-5.3.2
+    qDebug() << "Sto per fare la PUT: ";
+
+    QNetworkRequest request;
+
+    // Building the header of a PUT request to push a VCalendar Object for ONE VEVENT
+
+    request.setUrl(QUrl(_url + event->filename()));
+    //request.setUrl(QUrl(_url + "prova.ics"));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    //"The "If-None-Match: *" request header ensures that the client will not inadvertently overwrite an existing resource
+    //if the last path segment turned out to already be used"
+    //request.setRawHeader("If-None-Match", "*");
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+
+    // Building the Body
+
+    QString requestString = "BEGIN:VCALENDAR\r\n"
+                            "VERSION:2.0\r\n"
+                            "BEGIN:VEVENT\r\n"
+                            "UID:" + event->uid() + "\r\n"
+                            "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
+                            "DTSTART:" + event->startDateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+                            "DTEND:" + event->endDateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+                            "SUMMARY:" + event->summary() + "\r\n"
+                            "LOCATION:" + event->location() + "\r\n"
+                            "DESCRIPTION:" + event->description() + "\r\n";
+    if (!event->rrule().isEmpty())
+    {
+      requestString.append("RRULE:" + event->rrule() + "\r\n");
+    }
+
+    if (!event->exdate().isEmpty())
+    {
+      requestString.append("EXDATE:" + event->exdate() + "\r\n");
+    }
+
+    requestString.append("END:VEVENT\r\nEND:VCALENDAR");
+
+    QBuffer* buffer = new QBuffer();
+    buffer->open(QIODevice::ReadWrite);
+
+    int bufferSize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+
+    QByteArray contentLength;
+    contentLength.append(QString::number(bufferSize).toStdString());
+
+    request.setRawHeader("Content-Length", contentLength);
+
+    //No custom request, just a put
+    _reply = _manager->put(request, buffer);
+
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus()));
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVEventFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
+
+    qDebug() << "Ho completato la put a: " +(_url + event->filename());
+}
+
+void Calendar::handleAddingVEventFinished(){
+
 }

@@ -36,6 +36,7 @@ signals:
     void showEventDialog(Calendar* cal);
 
 public slots:
+    void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
 
 private slots:
     void APIRequestSyncToken(void);
@@ -47,6 +48,10 @@ private slots:
     void handleRemoveCalendar();
     void handleAddNewEventPopUp();
 
+
+
+    void APIAddEvent(Event *event);
+    void handleAddingVEventFinished();
 private:
     QString _username;
     QString _password;

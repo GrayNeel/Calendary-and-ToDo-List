@@ -27,7 +27,7 @@ public:
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
     void handleAddCalendarError(QString errorMessage);
-    void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
+
     void handleAddEventError(QString errorMessage);
     void handleRemoveCalendarFromList(Calendar* cal);
 

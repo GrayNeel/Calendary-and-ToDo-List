@@ -9,6 +9,7 @@ class Event : public QObject
     Q_OBJECT
 public:
     explicit Event(QObject *parent = nullptr);
+    Event(const QString &uid, const QString &filename, const QString &summary, const QString &location, const QString &description, const QString &rrule, const QString &exdate, const QDateTime &startDateTime, const QDateTime &endDateTime);
 
     void setDescription(const QString &newDescription);
 
@@ -20,6 +21,18 @@ public:
     void setExdate(const QString &newExdate);
     void setStartDateTime(const QDateTime &newStartDateTime);
     void setEndDateTime(const QDateTime &newEndDateTime);
+
+    const QString &uid() const;
+
+    const QString &filename() const;
+
+    const QString &summary() const;
+    const QString &location() const;
+    const QString &description() const;
+    const QString &rrule() const;
+    const QString &exdate() const;
+    const QDateTime &startDateTime() const;
+    const QDateTime &endDateTime() const;
 
 signals:
 

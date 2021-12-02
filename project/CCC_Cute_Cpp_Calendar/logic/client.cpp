@@ -56,10 +56,7 @@ void Client::handleRemoveCalendarFromList(Calendar* cal){
     // qDebug() << "Sono lo slot dentro client";
 }
 
-//TODO: implement this
-void Client::handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
 
-}
 
 //TODO: implement this
 void Client::handleAddEventError(QString errorMessage) {
