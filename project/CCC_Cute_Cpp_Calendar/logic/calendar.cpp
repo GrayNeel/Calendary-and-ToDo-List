@@ -262,15 +262,15 @@ void Calendar::APIAddEvent(Event* event) {
                             "SUMMARY:" + event->summary() + "\r\n"
                             "LOCATION:" + event->location() + "\r\n"
                             "DESCRIPTION:" + event->description() + "\r\n";
-    if (!event->rrule().isEmpty())
-    {
-      requestString.append("RRULE:" + event->rrule() + "\r\n");
-    }
+//    if (!event->rrule().isEmpty())
+//    {
+//      requestString.append("RRULE:" + event->rrule() + "\r\n");
+//    }
 
-    if (!event->exdate().isEmpty())
-    {
-      requestString.append("EXDATE:" + event->exdate() + "\r\n");
-    }
+//    if (!event->exdate().isEmpty())
+//    {
+//      requestString.append("EXDATE:" + event->exdate() + "\r\n");
+//    }
 
     requestString.append("END:VEVENT\r\nEND:VCALENDAR");
 
