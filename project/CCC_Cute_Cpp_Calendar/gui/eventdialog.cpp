@@ -6,6 +6,11 @@ EventDialog::EventDialog(QWidget *parent) :
     ui(new Ui::EventDialog)
 {
     ui->setupUi(this);
+
+    /**
+     * Setup validation of Time fields, since hours and minutes are lineEdit
+     * and user might insert characters instead of numbers
+     **/
     ui->startingHoursLine->setText(QString("00"));
     ui->startingMinutesLine->setText(QString("00"));
     ui->endingHoursLine->setText(QString("00"));
@@ -23,16 +28,19 @@ EventDialog::~EventDialog()
 
 void EventDialog::on_confirmButton_clicked()
 {
+    // Summary field & check
     QString summary = QString(ui->summaryLine->text());
 
     if(summary.length()<1) {
-        handleEventResponse(QString("L'evento deve avere un titolo."));
+        handleEventResponse(QString("L'evento deve avere un nome."));
         return;
     }
 
-    QString location = QString(ui->locationLine->text()); // May be optional?
+    QString location = QString(ui->locationLine->text());
+    // No validation on location since it might be optional
 
-    QString description = QString(ui->descriptionText->toPlainText()); // May be optional?
+    QString description = QString(ui->descriptionText->toPlainText());
+    // No validation on description since it might be optional
 
     QDate startingDate = ui->calendarWidgetStart->selectedDate();
     QDate endingDate = ui->calendarWidgetEnd->selectedDate();
@@ -98,11 +106,11 @@ void EventDialog::on_confirmButton_clicked()
      **/
 
     // Not implemented yet
-    // QString _rrule;
+    // QString rrule;
 
+    // If this line is reached, validation went well. No response to show.
     handleEventResponse("");
     emit eventAddEvent(summary, location, description, startDateTime, endDateTime);
-
 }
 
 Calendar *EventDialog::getCal() const

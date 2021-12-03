@@ -155,9 +155,7 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
         eventDialog->setCal(cal);
         eventDialog->setCalName(cal->displayName());
 
-//        connect(eventDialog, &EventDialog::eventAddEvent, client, &Client::handleAddEvent);
 //        connect(client, &Client::eventDialogErrorMessage, eventDialog, &EventDialog::handleEventResponse);
-//        connect(client, &Client::closeEventDialog, this, &MainWindow::handleCloseEventDialog);
 
         connect(eventDialog, &EventDialog::eventAddEvent, cal, &Calendar::handleAddEvent);
         connect(cal, &Calendar::eventAdded, this, &MainWindow::handleAddEventFinished);

@@ -218,18 +218,16 @@ void Calendar::handleAddNewEventPopUp() {
     emit showEventDialog(this);
 }
 
-//TODO: implement this
 void Calendar::handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
     //if uid=-1 I have a new event. Constructor will choose a new one based on timestamp
     //if filename is empty constructor create it basing on uid
     //update API is based on a specific uid
     Event* newEvent = new Event(QString("-1"), QString(""), summary, location, description, QString("rrule"), QString("exdata"), startDateTime, endDateTime);
     _eventsList.append(newEvent);
-    //connect(this,SIGNAL(addEvent()),newEvent,SLOT(APIAddEvent()));
-    qDebug() << "Ho aggiunto l'evento: " << newEvent->summary();
+
     APIAddEvent(newEvent);
-    //delete cal;
 }
+
 /**
  *
  * @brief This API push a new event in a VCalendar Object from a specific calendar
@@ -286,7 +284,7 @@ void Calendar::APIAddEvent(Event* event) {
     _reply = _manager->put(request, buffer);
 
     // When request ends check the status (200 OK or not) and then handle the Reply
-    connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus()));
+    connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
     connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVEventFinished()));
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
