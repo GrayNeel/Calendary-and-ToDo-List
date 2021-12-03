@@ -108,16 +108,15 @@ void Calendar::checkResponseStatus() {
     _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     if(_statusCode == 0) {
-        qDebug() << "Bad URL";
+        //qDebug() << "Bad URL";
         emit calendarRetrieveError(QString("Wrong URL. Try again!"));
     }
 
     if (_statusCode >= 200 && _statusCode < 300) {
-        qDebug() << "Good Response: " << _statusCode;
-        qDebug() << "Evento aggiunto correttamente";
+        //qDebug() << "Good Response: " << _statusCode;
 
     } else {
-        qDebug() << "Bad Response: " << _statusCode;
+        //qDebug() << "Bad Response: " << _statusCode;
         emit calendarRetrieveError(QString("Wrong credentials. Try again!"));
     }
 }
@@ -295,11 +294,12 @@ void Calendar::handleAddingVEventFinished(){
 
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Evento aggiunto correttamente";
+        //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
         emit eventAddFinished();
 
     } else {
         qDebug() << "Evento non aggiunto. Errore: " << _statusCode;
-
+        _eventsList.removeLast();
         emit eventRetrieveError();
     }
 }
