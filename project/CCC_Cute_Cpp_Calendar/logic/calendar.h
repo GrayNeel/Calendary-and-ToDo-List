@@ -34,7 +34,8 @@ signals:
     void calendarAdded();
     void removeCalendar(Calendar* cal);
     void showEventDialog(Calendar* cal);
-    void eventAdded();
+    void eventAddFinished();
+    void eventRetrieveError();
 
 public slots:
     void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);

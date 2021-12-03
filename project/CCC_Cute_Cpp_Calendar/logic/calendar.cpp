@@ -284,15 +284,22 @@ void Calendar::APIAddEvent(Event* event) {
     _reply = _manager->put(request, buffer);
 
     // When request ends check the status (200 OK or not) and then handle the Reply
-    connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
     connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVEventFinished()));
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
 
 void Calendar::handleAddingVEventFinished(){
-    qDebug() << "addingVEventFinished";
-    if(_statusCode >= 200 && _statusCode < 300) {
-        emit eventAdded();
+    _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    if (_statusCode >= 200 && _statusCode < 300) {
+        qDebug() << "Evento aggiunto correttamente";
+        emit eventAddFinished();
+
+    } else {
+        qDebug() << "Evento non aggiunto. Errore: " << _statusCode;
+
+        emit eventRetrieveError();
     }
 }

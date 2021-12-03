@@ -30,10 +30,11 @@ private slots:
 
     void on_calendarWidget_clicked(const QDate &date);
 
-    void handleCloseEventDialog(Event* event);
     void handleRemoveCalendarBox(Calendar* cal);
     void eventShowEventDialog(Calendar* cal);
     void handleAddEventFinished();
+    void handleAddEventError();
+    void handleAddEventWithoutError();
 
 private:
     Ui::MainWindow *ui;

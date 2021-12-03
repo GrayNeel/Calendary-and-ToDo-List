@@ -124,11 +124,6 @@ void MainWindow::on_calendarWidget_clicked(const QDate &date)
 }
 
 
-//TODO: implement this
-void MainWindow::handleCloseEventDialog(Event* event) {
-
-}
-
 void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
 
     // Temporary hide the content of the ScrollArea
@@ -168,8 +163,9 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
 //        connect(client, &Client::eventDialogErrorMessage, eventDialog, &EventDialog::handleEventResponse);
 
         connect(eventDialog, &EventDialog::eventAddEvent, cal, &Calendar::handleAddEvent);
-        connect(cal, &Calendar::eventAdded, this, &MainWindow::handleAddEventFinished);
         connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleAddEventFinished);
+        connect(cal, &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
+        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
     }
 
     eventDialog->setModal("true");
@@ -177,7 +173,7 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
 }
 /**
  *
- * @brief Handle the closing of an EventDialog: for an event added succesfully or when the modal is closed by the proper button
+ * @brief Handle the closing of an EventDialog: for an event added succesfully, unsuccesfully or when the modal is closed by the proper button
  */
 void MainWindow::handleAddEventFinished() {
     eventDialog->hide();
@@ -187,8 +183,24 @@ void MainWindow::handleAddEventFinished() {
      *  but clearing the line texts inside of it
      **/
     disconnect(eventDialog, &EventDialog::eventAddEvent, eventDialog->getCal(), &Calendar::handleAddEvent);
-    disconnect(eventDialog->getCal(), &Calendar::eventAdded, this, &MainWindow::handleAddEventFinished);
+    disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventFinished);
 
     delete eventDialog;
     eventDialog = NULL;
+}
+
+void MainWindow::handleAddEventError() {
+    handleAddEventFinished();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText("L'evento NON è stato aggiunto correttamente");
+    msgBox.exec();
+}
+
+void MainWindow::handleAddEventWithoutError() {
+    handleAddEventFinished();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setText("L'evento è stato aggiunto correttamente");
+    msgBox.exec();
 }
