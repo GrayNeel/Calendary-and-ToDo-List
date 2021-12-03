@@ -25,7 +25,8 @@ public:
 
 private slots:
     void on_actionApri_calendario_triggered();
-    void handleCloseDialog(Calendar* cal);
+    void handleCloseDialog();
+    void handleAddCalendarFinished(Calendar* cal);
 
     void on_calendarWidget_clicked(const QDate &date);
 

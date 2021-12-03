@@ -130,3 +130,15 @@ void EventDialog::handleEventResponse(QString errorMessage) {
 void EventDialog::setCalName(QString calName) {
     ui->calendarNameEdit->setText(calName);
 }
+
+void EventDialog::on_abortButton_clicked()
+{
+    emit closeEventDialog();
+}
+
+
+void EventDialog::on_EventDialog_rejected()
+{
+    emit closeEventDialog();
+}
+

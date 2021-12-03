@@ -30,6 +30,12 @@ void Dialog::handleResponse(QString errorMessage) {
 
 void Dialog::on_cancelButton_clicked()
 {
-    hide();
+    emit closeDialog();
+}
+
+
+void Dialog::on_Dialog_rejected()
+{
+    emit closeDialog();
 }
 

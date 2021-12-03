@@ -26,11 +26,16 @@ public:
 
 signals:
     void eventAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
+    void closeEventDialog();
 
 public slots:
 
 private slots:
     void on_confirmButton_clicked();
+
+    void on_abortButton_clicked();
+
+    void on_EventDialog_rejected();
 
 private:
     Ui::EventDialog *ui;

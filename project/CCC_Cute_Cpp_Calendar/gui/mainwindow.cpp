@@ -33,14 +33,15 @@ void MainWindow::on_actionApri_calendario_triggered()
         dialog = new Dialog();
         connect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
         connect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
-        connect(client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
+        connect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
+        connect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
     }
 
     dialog->setModal("true");
     dialog->show();
 }
 
-void MainWindow::handleCloseDialog(Calendar* cal) {
+void MainWindow::handleCloseDialog() {
     dialog->hide();
 
     /**
@@ -49,10 +50,15 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
      **/
     disconnect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
     disconnect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
-    disconnect(client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
+    disconnect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
+    disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
 
     delete dialog;
     dialog = NULL;
+}
+
+void MainWindow::handleAddCalendarFinished(Calendar* cal) {
+    handleCloseDialog();
 
     /**
      * In this phase there will be the creation of the box to be shown on the UI
@@ -106,6 +112,8 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     _calBoxes->setLayout(_calBoxesLayout);
     //ui->scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     ui->scrollArea->setWidget(_calBoxes);
+    //ui->scrollArea->resize(_calBoxes->size().width(), ui->scrollAreaWidgetContents->size().height());
+
 
 }
 
@@ -161,12 +169,16 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
 
         connect(eventDialog, &EventDialog::eventAddEvent, cal, &Calendar::handleAddEvent);
         connect(cal, &Calendar::eventAdded, this, &MainWindow::handleAddEventFinished);
+        connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleAddEventFinished);
     }
 
     eventDialog->setModal("true");
     eventDialog->show();
 }
-
+/**
+ *
+ * @brief Handle the closing of an EventDialog: for an event added succesfully or when the modal is closed by the proper button
+ */
 void MainWindow::handleAddEventFinished() {
     eventDialog->hide();
 

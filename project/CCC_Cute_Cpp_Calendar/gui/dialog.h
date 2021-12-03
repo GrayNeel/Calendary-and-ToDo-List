@@ -32,8 +32,11 @@ private slots:
 
     void on_cancelButton_clicked();
 
+    void on_Dialog_rejected();
+
 signals:
     void eventAddCalendar(QString username, QString password, QString url);
+    void closeDialog();
 
 private:
     Ui::Dialog *ui;
