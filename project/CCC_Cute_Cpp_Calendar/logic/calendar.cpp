@@ -290,10 +290,11 @@ void Calendar::APIAddEvent(Event* event) {
     connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVEventFinished()));
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
-
-    qDebug() << "Ho completato la put a: " +(_url + event->filename());
 }
 
 void Calendar::handleAddingVEventFinished(){
-
+    qDebug() << "addingVEventFinished";
+    if(_statusCode >= 200 && _statusCode < 300) {
+        emit eventAdded();
+    }
 }

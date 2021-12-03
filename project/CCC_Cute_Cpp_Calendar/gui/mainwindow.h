@@ -32,6 +32,7 @@ private slots:
     void handleCloseEventDialog(Event* event);
     void handleRemoveCalendarBox(Calendar* cal);
     void eventShowEventDialog(Calendar* cal);
+    void handleAddEventFinished();
 
 private:
     Ui::MainWindow *ui;

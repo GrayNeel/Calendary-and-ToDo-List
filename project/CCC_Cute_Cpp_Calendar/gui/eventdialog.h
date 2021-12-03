@@ -22,11 +22,12 @@ public:
     void setCal(Calendar *newCal);
     void setCalName(QString calname);
 
+    Calendar *getCal() const;
+
 signals:
     void eventAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
 
 public slots:
-    void handleEventResponse(QString errorMessage);
 
 private slots:
     void on_confirmButton_clicked();
@@ -34,6 +35,8 @@ private slots:
 private:
     Ui::EventDialog *ui;
     Calendar* cal;
+
+    void handleEventResponse(QString errorMessage);
 };
 
 #endif // EVENTDIALOG_H

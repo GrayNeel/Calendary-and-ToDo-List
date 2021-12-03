@@ -160,9 +160,23 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
 //        connect(client, &Client::closeEventDialog, this, &MainWindow::handleCloseEventDialog);
 
         connect(eventDialog, &EventDialog::eventAddEvent, cal, &Calendar::handleAddEvent);
-        //connect(cal, &Calendar::eventAddEventFinished, this, &MainWindow::handleAddEventFinished);
+        connect(cal, &Calendar::eventAdded, this, &MainWindow::handleAddEventFinished);
     }
 
     eventDialog->setModal("true");
     eventDialog->show();
+}
+
+void MainWindow::handleAddEventFinished() {
+    eventDialog->hide();
+
+    /**
+     *  The alternative to disconnect is to DO NOT delete the dialog
+     *  but clearing the line texts inside of it
+     **/
+    disconnect(eventDialog, &EventDialog::eventAddEvent, eventDialog->getCal(), &Calendar::handleAddEvent);
+    disconnect(eventDialog->getCal(), &Calendar::eventAdded, this, &MainWindow::handleAddEventFinished);
+
+    delete eventDialog;
+    eventDialog = NULL;
 }

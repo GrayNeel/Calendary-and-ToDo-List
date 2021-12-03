@@ -26,7 +26,7 @@ void EventDialog::on_confirmButton_clicked()
     QString summary = QString(ui->summaryLine->text());
 
     if(summary.length()<1) {
-        ui->errorMessageLabel->setText(QString("L'evento deve avere un titolo."));
+        handleEventResponse(QString("L'evento deve avere un titolo."));
         return;
     }
 
@@ -41,7 +41,7 @@ void EventDialog::on_confirmButton_clicked()
      * Validation of Date and Time received from GUI
      **/
     if(startingDate.isNull() || endingDate.isNull()) {
-        ui->errorMessageLabel->setText(QString("Devi selezionare correttamente una data di inizio e di fine evento."));
+        handleEventResponse(QString("Devi selezionare correttamente una data di inizio e di fine evento."));
         return;
     }
 
@@ -53,20 +53,20 @@ void EventDialog::on_confirmButton_clicked()
 
     if(ui->startingHoursLine->text().isNull() || ui->startingMinutesLine->text().isNull() || ui->endingHoursLine->text().isNull() || ui->endingMinutesLine->text().isNull() ||
             ui->startingHoursLine->text().length() == 0 || ui->startingMinutesLine->text().length() == 0 || ui->endingHoursLine->text().length() == 0 || ui->endingMinutesLine->text().length() == 0) {
-        ui->errorMessageLabel->setText(QString("I campi orario non possono essere vuoti."));
+        handleEventResponse(QString("I campi orario non possono essere vuoti."));
         return;
     }
     int startingHours = ui->startingHoursLine->text().toInt();
 
     if(startingHours < 0 || startingHours > 24) {
-        ui->errorMessageLabel->setText(QString("Ora di inizio non corretta."));
+        handleEventResponse(QString("Ora di inizio non corretta."));
         return;
     }
 
     int startingMinutes = ui->startingMinutesLine->text().toInt();
 
     if(startingMinutes < 0 || startingMinutes > 59) {
-        ui->errorMessageLabel->setText(QString("Minuti di inizio non corretti."));
+        handleEventResponse(QString("Minuti di inizio non corretti."));
         return;
     }
 
@@ -75,21 +75,21 @@ void EventDialog::on_confirmButton_clicked()
     int endingHours = ui->endingHoursLine->text().toInt();
 
     if(endingHours < 0 || endingHours> 24) {
-        ui->errorMessageLabel->setText(QString("Ora di fine non corretta."));
+        handleEventResponse(QString("Ora di fine non corretta."));
         return;
     }
 
     int endingMinutes = ui->endingMinutesLine->text().toInt();
 
     if(endingMinutes < 0 || endingMinutes > 59) {
-        ui->errorMessageLabel->setText(QString("Minuti di fine non corretti."));
+        handleEventResponse(QString("Minuti di fine non corretti."));
         return;
     }
 
     endDateTime.setTime(QTime(endingHours,endingMinutes));
 
     if(startDateTime>=endDateTime) {
-         ui->errorMessageLabel->setText(QString("La data di fine deve essere successiva a quella di inizio"));
+         handleEventResponse(QString("La data di fine deve essere successiva a quella di inizio"));
          return;
     }
 
@@ -100,9 +100,14 @@ void EventDialog::on_confirmButton_clicked()
     // Not implemented yet
     // QString _rrule;
 
-    ui->errorMessageLabel->setText("");
+    handleEventResponse("");
     emit eventAddEvent(summary, location, description, startDateTime, endDateTime);
 
+}
+
+Calendar *EventDialog::getCal() const
+{
+    return cal;
 }
 
 void EventDialog::setCal(Calendar *newCal)
@@ -110,9 +115,8 @@ void EventDialog::setCal(Calendar *newCal)
     cal = newCal;
 }
 
-//TODO: Implement this
 void EventDialog::handleEventResponse(QString errorMessage) {
-
+    ui->errorMessageLabel->setText(errorMessage);
 }
 
 void EventDialog::setCalName(QString calName) {
