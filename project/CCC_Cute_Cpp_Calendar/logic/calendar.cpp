@@ -222,7 +222,7 @@ void Calendar::handleAddEvent(QString summary, QString location, QString descrip
     //if uid=-1 I have a new event. Constructor will choose a new one based on timestamp
     //if filename is empty constructor create it basing on uid
     //update API is based on a specific uid
-    Event* newEvent = new Event(QString("-1"), QString(""), summary, location, description, QString("rrule"), QString("exdata"), startDateTime, endDateTime);
+    Event* newEvent = new Event(QString("-1"), QString(""), summary, location, description, QString(""), QString(""), startDateTime, endDateTime);
     _eventsList.append(newEvent);
 
     APIAddEvent(newEvent);
@@ -242,7 +242,7 @@ void Calendar::APIAddEvent(Event* event) {
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
     //"The "If-None-Match: *" request header ensures that the client will not inadvertently overwrite an existing resource
     //if the last path segment turned out to already be used"
-    //request.setRawHeader("If-None-Match", "*");
+    request.setRawHeader("If-None-Match", "*");
     request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
 
     // Building the Body
@@ -257,15 +257,15 @@ void Calendar::APIAddEvent(Event* event) {
                             "SUMMARY:" + event->summary() + "\r\n"
                             "LOCATION:" + event->location() + "\r\n"
                             "DESCRIPTION:" + event->description() + "\r\n";
-//    if (!event->rrule().isEmpty())
-//    {
-//      requestString.append("RRULE:" + event->rrule() + "\r\n");
-//    }
+    if (!event->rrule().isEmpty())
+    {
+      requestString.append("RRULE:" + event->rrule() + "\r\n");
+    }
 
-//    if (!event->exdate().isEmpty())
-//    {
-//      requestString.append("EXDATE:" + event->exdate() + "\r\n");
-//    }
+    if (!event->exdate().isEmpty())
+    {
+      requestString.append("EXDATE:" + event->exdate() + "\r\n");
+    }
 
     requestString.append("END:VEVENT\r\nEND:VCALENDAR");
 

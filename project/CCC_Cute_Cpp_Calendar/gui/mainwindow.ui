@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>CCC: Cute Cpp Calendar</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QScrollArea" name="scrollArea">
     <property name="geometry">
@@ -56,6 +59,12 @@
        <height>609</height>
       </rect>
      </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
     </widget>
    </widget>
    <widget class="QCalendarWidget" name="calendarWidget">
@@ -75,7 +84,7 @@
      <x>0</x>
      <y>0</y>
      <width>1061</width>
-     <height>20</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

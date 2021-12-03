@@ -17,8 +17,8 @@ Event::Event(const QString &uid, const QString &filename, const QString &summary
 {
     if (uid.toInt()==-1)
       {
-        //_uid = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" + startDateTime.toString("yyyyMMddHHMM");
-        _uid = "uriDiProva";
+        //append a number generated from a random number generator if necessary
+        _uid = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss");
       }
 
       if (filename.isEmpty())

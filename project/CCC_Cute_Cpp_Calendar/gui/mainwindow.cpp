@@ -74,8 +74,15 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
 
     // The third line will show the buttons
     QHBoxLayout* thirdLine = new QHBoxLayout();
-    QPushButton* removeButton = new QPushButton("Rimuovi", this);
+    //Add event button
+    QPushButton* addEventButton = new QPushButton("Nuovo evento", this);
+    // When "Add event" button is pressed call the calendar's slot that will call a slot to show EventDialog and refer to it
+    connect(addEventButton, SIGNAL(clicked()), cal, SLOT(handleAddNewEventPopUp()));
+    connect(cal,&Calendar::showEventDialog,this,&MainWindow::eventShowEventDialog);
+    thirdLine->addWidget(addEventButton);
 
+    //Remove calendar button
+    QPushButton* removeButton = new QPushButton("Rimuovi", this);
     // When "Remove" button is pressed call the calendar's slot that will signal to the client/GUI that it has to be deleted
     connect(removeButton, SIGNAL(clicked()), cal, SLOT(handleRemoveCalendar()));
     // Mainwindow will update then the layout list
@@ -84,13 +91,6 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
     connect(cal, &Calendar::removeCalendar, client, &Client::handleRemoveCalendarFromList);
 
     thirdLine->addWidget(removeButton);
-
-    QPushButton* addEventButton = new QPushButton("Nuovo evento", this);
-
-    // When "Add event" button is pressed call the calendar's slot that will call a slot to show EventDialog and refer to it
-    connect(addEventButton, SIGNAL(clicked()), cal, SLOT(handleAddNewEventPopUp()));
-    connect(cal,&Calendar::showEventDialog,this,&MainWindow::eventShowEventDialog);
-    thirdLine->addWidget(addEventButton);
 
     // Build now the whole box
     QVBoxLayout* fullBox = new QVBoxLayout();
@@ -104,7 +104,9 @@ void MainWindow::handleCloseDialog(Calendar* cal) {
 
     // Show the whole list to the UI
     _calBoxes->setLayout(_calBoxesLayout);
+    //ui->scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     ui->scrollArea->setWidget(_calBoxes);
+
 }
 
 
