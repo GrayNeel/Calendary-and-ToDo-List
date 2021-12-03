@@ -16,7 +16,12 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
     _calendarList.append(cal);
     cal->setUsername(username);
     cal->setPassword(password);
-    cal->setUrl(url);
+
+    if(url.back() != QChar('/')) {
+        cal->setUrl(url.append('/'));
+    }else{
+        cal->setUrl(url);
+    }
 
     emit requestSyncToken();
 

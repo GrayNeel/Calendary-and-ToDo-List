@@ -2,6 +2,9 @@
 #define EVENTDIALOG_H
 
 #include <QDialog>
+#include <QDateTime>
+#include <QDate>
+#include <QValidator>
 #include "logic/calendar.h"
 
 namespace Ui {

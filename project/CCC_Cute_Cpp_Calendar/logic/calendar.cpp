@@ -235,15 +235,12 @@ void Calendar::handleAddEvent(QString summary, QString location, QString descrip
  * @brief This API push a new event in a VCalendar Object from a specific calendar
  */
 void Calendar::APIAddEvent(Event* event) {
-    //https://datatracker.ietf.org/doc/html/rfc4791#section-5.3.2
-    qDebug() << "Sto per fare la PUT: ";
-
+    // https://datatracker.ietf.org/doc/html/rfc4791#section-5.3.2
     QNetworkRequest request;
 
     // Building the header of a PUT request to push a VCalendar Object for ONE VEVENT
 
     request.setUrl(QUrl(_url + event->filename()));
-    //request.setUrl(QUrl(_url + "prova.ics"));
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
     //"The "If-None-Match: *" request header ensures that the client will not inadvertently overwrite an existing resource
     //if the last path segment turned out to already be used"
