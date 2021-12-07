@@ -40,6 +40,7 @@ signals:
 public slots:
     void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
 
+
 private slots:
     void APIRequestSyncToken(void);
     void handleAuthentication(QNetworkReply *reply, QAuthenticator *authenticator) const;
@@ -49,6 +50,8 @@ private slots:
     void handleRequestVCalendarObjectsFinished();
     void handleRemoveCalendar();
     void handleAddNewEventPopUp();
+
+    void handleGetFinished();
 
 
 
@@ -69,6 +72,7 @@ private:
 
     QList<Event*> _eventsList;
     QList<Todo*> _todosList;
+    void getForLastResource(QUrl resourceUrl);
 };
 
 #endif // CALENDAR_H

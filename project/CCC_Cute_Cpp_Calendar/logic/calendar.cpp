@@ -203,6 +203,7 @@ void Calendar::APIRequestVCalendarObjects(void) {
 void Calendar::handleRequestVCalendarObjectsFinished(void) {
     qDebug() << "requestVCalendarObjectsFinished";
     if(_statusCode >= 200 && _statusCode < 300) {
+
         emit calendarAdded();
     }
 }
@@ -289,12 +290,58 @@ void Calendar::APIAddEvent(Event* event) {
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
 
+void Calendar::getForLastResource(QUrl resourceUrl){
+    QNetworkRequest request;
+
+    // Building the header of a GET request to just retrieve the etag for the last event added
+
+    request.setUrl(resourceUrl);
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    request.setRawHeader("Depth", "0");
+    request.setRawHeader("Prefer", "return-minimal");
+    request.setRawHeader("Content-Type", "application/xml; charset=utf-8");
+
+    _reply = _manager->get(request);
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleGetFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
+
+}
+
+void Calendar::handleGetFinished(){
+    _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    if (_statusCode >= 200 && _statusCode < 300) {
+        qDebug() << "Get eseguita correttamente: "<< _statusCode;
+        if(_reply->hasRawHeader(QByteArray("ETag"))){
+            //Save the etag in the event with the name of the url resource/or the last one appended
+            QString etag = _reply->header(QNetworkRequest::ETagHeader).toString();
+            _eventsList.last()->setEtag(etag);
+            qDebug()<< "Etag dell'ultimo oggetto (recuperato dalla get):" << etag;
+            qDebug() << "Ultimo evento aggiunto: " << _eventsList.last()->filename();
+            qDebug() << "Etag aggiornato: " << _eventsList.last()->etag();
+        }
+        else
+            qDebug()<< "Errore: nessun header Etag trovato nella risposta";
+        //emit eventAddFinished();
+
+    } else {
+        qDebug() << "Get errata: " << _statusCode;
+        //_eventsList.removeLast();
+        //emit eventRetrieveError();
+    }
+}
+
 void Calendar::handleAddingVEventFinished(){
     _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    //QUrl resourceUri = _reply->url();
+    QUrl resourceUrl = _reply->request().url();
 
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Evento aggiunto correttamente";
         //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
+        getForLastResource(resourceUrl);
         emit eventAddFinished();
 
     } else {

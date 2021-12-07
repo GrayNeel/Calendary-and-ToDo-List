@@ -67,6 +67,11 @@ void Event::setEndDateTime(const QDateTime &newEndDateTime)
     _endDateTime = newEndDateTime;
 }
 
+void Event::setEtag(const QString &newEtag)
+{
+    _etag = newEtag;
+}
+
 const QString &Event::uid() const
 {
     return _uid;
@@ -111,4 +116,10 @@ const QDateTime &Event::endDateTime() const
 {
     return _endDateTime;
 }
+
+const QString &Event::etag() const
+{
+    return _etag;
+}
+
 

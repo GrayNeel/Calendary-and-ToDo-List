@@ -21,6 +21,7 @@ public:
     void setExdate(const QString &newExdate);
     void setStartDateTime(const QDateTime &newStartDateTime);
     void setEndDateTime(const QDateTime &newEndDateTime);
+    void setEtag(const QString &newEtag);
 
     const QString &uid() const;
 
@@ -33,6 +34,7 @@ public:
     const QString &exdate() const;
     const QDateTime &startDateTime() const;
     const QDateTime &endDateTime() const;
+    const QString &etag() const;
 
 signals:
 
@@ -50,6 +52,7 @@ private:
     QString _exdate;
     QDateTime _startDateTime;
     QDateTime _endDateTime;
+    QString _etag;
 };
 
 #endif // EVENT_H
