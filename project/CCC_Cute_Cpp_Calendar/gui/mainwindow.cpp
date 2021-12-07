@@ -62,9 +62,33 @@ void MainWindow::handleCloseDialog() {
 }
 
 void MainWindow::handlePrintEvent(QList<Event*> eventList){
-    ui->textEdit->setText("Sono presenti: " + QString::number(eventList.length())+" eventi per il calendario aggiunto");
-    for(int i =0; i< eventList.length(); i++)
-        ui->textEdit->append(eventList[i]->summary() +" "+ eventList[i]->location());
+    ui->eventScrollArea->widget()->hide();
+
+    QHBoxLayout* firstLine = new QHBoxLayout();
+    QLabel* defaultText = new QLabel(QString("Sono presenti: " + QString::number(eventList.length())+" eventi per il calendario aggiunto"));
+    firstLine->addWidget(defaultText);
+
+    QVBoxLayout* fullBox = new QVBoxLayout();
+    fullBox->setAlignment(Qt::AlignLeft);
+    fullBox->addLayout(firstLine);
+
+    for(int i =0; i< eventList.length(); i++) {
+        QHBoxLayout* theLine = new QHBoxLayout();
+        QLabel* theText = new QLabel(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
+        theLine->addWidget(theText);
+        fullBox->addLayout(theLine);
+    }
+
+    QWidget* eventBoxes = new QWidget(ui->eventScrollArea);
+    QVBoxLayout* eventBoxesLayout = new QVBoxLayout();
+    eventBoxesLayout->setAlignment(Qt::AlignTop);
+
+    eventBoxesLayout->addLayout(fullBox);
+
+    eventBoxes->setLayout(eventBoxesLayout);
+    ui->eventScrollArea->setWidget(eventBoxes);
+
+    ui->eventScrollArea->widget()->show();
 }
 
 void MainWindow::handleAddCalendarFinished(Calendar* cal) {
@@ -86,15 +110,7 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
     QLabel* defaultUrl = new QLabel(QString("URL:"));
     secondLine->addWidget(defaultUrl);
 
-    QString printableUrl;
-    if(cal->url().length()>35) {
-        printableUrl = cal->url().mid(0,35);
-        printableUrl.append(".../");
-    } else {
-        printableUrl = cal->url();
-    }
-
-    QLabel* urlCal = new QLabel(printableUrl);
+    QLabel* urlCal = new QLabel(cal->url());
     secondLine->addWidget(urlCal);
 
     // The third line will show the buttons
@@ -146,7 +162,6 @@ void MainWindow::on_calendarWidget_clicked(const QDate &date)
 
 
 void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
-
     // Temporary hide the content of the ScrollArea
     ui->scrollArea->widget()->hide();
 
@@ -154,7 +169,7 @@ void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
     for(int i =0; i<_calBoxesLayout->count(); i++){
         QWidget *url = _calBoxesLayout->itemAt(i)->layout()->itemAt(1)->layout()->itemAt(1)->widget();
         QLabel *label = qobject_cast<QLabel *>(url);
-        // qDebug() << "Url:" << label->text();
+//        qDebug() << "Url:" << label->text();
         if(cal->url() == label->text()){
             QLayoutItem * tobeRemoved = _calBoxesLayout->itemAt(i)->layout();
             _calBoxesLayout->removeItem(tobeRemoved);

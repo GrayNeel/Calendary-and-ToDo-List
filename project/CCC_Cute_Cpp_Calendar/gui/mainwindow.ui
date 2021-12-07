@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>961</width>
-    <height>570</height>
+    <width>1052</width>
+    <height>594</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -76,8 +76,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>249</width>
-         <height>487</height>
+         <width>289</width>
+         <height>520</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -90,20 +90,39 @@
      </widget>
     </item>
     <item>
-     <widget class="QTextEdit" name="textEdit">
+     <widget class="QScrollArea" name="eventScrollArea">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>289</width>
+         <height>520</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
      <widget class="QCalendarWidget" name="calendarWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
-        <width>571</width>
+        <width>400</width>
         <height>481</height>
        </size>
       </property>
@@ -116,8 +135,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>961</width>
-     <height>26</height>
+     <width>1052</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
