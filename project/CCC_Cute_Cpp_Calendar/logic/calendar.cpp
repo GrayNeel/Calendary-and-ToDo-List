@@ -294,9 +294,9 @@ void Calendar::parseCalendarData(QString entity, QString uri, QString eTag){
         QString uid = map.value("UID", "");
         //verificare se il formato è giusto
         //20211203T164559Z
-        QDateTime dtStamp = QDateTime::fromString(map.value("DTSTAMP", "yyyyMMddTHHmmssz"));
-        QDateTime dtStart = QDateTime::fromString(map.value("DTSTART", "yyyyMMddTHHmmssz"));
-        QDateTime dtEnd = QDateTime::fromString(map.value("DTEND", "yyyyMMddTHHmmssz"));
+        QDateTime dtStamp = QDateTime::fromString(map.value("DTSTAMP"), "yyyyMMddTHHmmssZ");
+        QDateTime dtStart = QDateTime::fromString(map.value("DTSTART"), "yyyyMMddTHHmmss");
+        QDateTime dtEnd = QDateTime::fromString(map.value("DTEND"), "yyyyMMddTHHmmss");
         QString summary = map.value("SUMMARY", "");
         QString location = map.value("LOCATION", "");
         QString description = map.value("DESCRIPTION", "");

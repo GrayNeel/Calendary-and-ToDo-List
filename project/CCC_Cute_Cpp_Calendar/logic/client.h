@@ -23,7 +23,7 @@ public:
     const int getCalendarCount() const;
 
     void setCalendarList(const QList<Calendar *> &newCalendarList);
-
+    QList<Event*> getEventByDate(const QDate &date);
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
     void handleAddCalendarError(QString errorMessage);

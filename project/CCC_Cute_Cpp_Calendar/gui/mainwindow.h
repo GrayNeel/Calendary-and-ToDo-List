@@ -37,6 +37,8 @@ private slots:
     void handleAddEventWithoutError();
 
     void handlePrintEvent(QList<Event*> eventList);
+    void on_calendarWidget_selectionChanged();
+
 private:
     Ui::MainWindow *ui;
     Dialog* dialog;

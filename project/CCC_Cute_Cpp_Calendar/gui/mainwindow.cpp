@@ -156,8 +156,8 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
 
 
 void MainWindow::on_calendarWidget_clicked(const QDate &date)
-{
-    //TODO: User selected a date, show Events and ToDo for that date
+{ 
+    handlePrintEvent(client->getEventByDate(date));
 }
 
 
@@ -240,3 +240,9 @@ void MainWindow::handleAddEventWithoutError() {
     msgBox.setText("L'evento è stato aggiunto correttamente");
     msgBox.exec();
 }
+
+void MainWindow::on_calendarWidget_selectionChanged()
+{
+
+}
+

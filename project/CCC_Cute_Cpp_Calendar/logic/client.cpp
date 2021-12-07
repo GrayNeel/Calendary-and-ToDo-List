@@ -68,3 +68,18 @@ void Client::handleRemoveCalendarFromList(Calendar* cal){
 void Client::handleAddEventError(QString errorMessage) {
 
 }
+
+QList<Event*> Client::getEventByDate(const QDate &date) {
+    QList<Event*> eventsList;
+
+    for (Calendar* cal : _calendarList) {
+        for (Event* ev : cal->eventsList()) {
+            qDebug() << ev->startDateTime().toString();
+            if(ev->startDateTime().date() == date) {
+                eventsList.append(ev);
+            }
+        }
+    }
+
+    return eventsList;
+}
