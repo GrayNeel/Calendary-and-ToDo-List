@@ -85,7 +85,16 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
     QHBoxLayout* secondLine = new QHBoxLayout();
     QLabel* defaultUrl = new QLabel(QString("URL:"));
     secondLine->addWidget(defaultUrl);
-    QLabel* urlCal = new QLabel(cal->url());
+
+    QString printableUrl;
+    if(cal->url().length()>35) {
+        printableUrl = cal->url().mid(0,35);
+        printableUrl.append(".../");
+    } else {
+        printableUrl = cal->url();
+    }
+
+    QLabel* urlCal = new QLabel(printableUrl);
     secondLine->addWidget(urlCal);
 
     // The third line will show the buttons
@@ -95,10 +104,11 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
     // When "Add event" button is pressed call the calendar's slot that will call a slot to show EventDialog and refer to it
     connect(addEventButton, SIGNAL(clicked()), cal, SLOT(handleAddNewEventPopUp()));
     connect(cal,&Calendar::showEventDialog,this,&MainWindow::eventShowEventDialog);
+    addEventButton->setMaximumSize(90,40);
     thirdLine->addWidget(addEventButton);
 
     //Remove calendar button
-    QPushButton* removeButton = new QPushButton("Rimuovi", this);
+    QPushButton* removeButton = new QPushButton("Rimuovi Calendario", this);
     // When "Remove" button is pressed call the calendar's slot that will signal to the client/GUI that it has to be deleted
     connect(removeButton, SIGNAL(clicked()), cal, SLOT(handleRemoveCalendar()));
     // Mainwindow will update then the layout list
@@ -106,8 +116,9 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
     // Client will update the calendar's list
     connect(cal, &Calendar::removeCalendar, client, &Client::handleRemoveCalendarFromList);
 
+    removeButton->setMaximumSize(140,40);
     thirdLine->addWidget(removeButton);
-
+    thirdLine->setAlignment(Qt::AlignLeft);
     // Build now the whole box
     QVBoxLayout* fullBox = new QVBoxLayout();
     fullBox->setAlignment(Qt::AlignLeft);
