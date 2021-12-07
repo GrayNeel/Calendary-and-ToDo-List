@@ -203,11 +203,123 @@ void Calendar::APIRequestVCalendarObjects(void) {
 void Calendar::handleRequestVCalendarObjectsFinished(void) {
     qDebug() << "requestVCalendarObjectsFinished";
     if(_statusCode >= 200 && _statusCode < 300) {
-
+        parseResponse();
         emit calendarAdded();
     }
 }
 
+void Calendar::parseResponse() {
+    QDomDocument body;
+    body.setContent(_reply);
+
+    //We have to refresh local list of event
+    _eventsList.clear();
+
+    //Response of the repor_t could be a multistatus, with multiple response child
+    QDomNodeList list_response = body.elementsByTagName("d:response");
+    for (int i = 0; i < list_response.size(); i++)
+    {
+      //structure of a repsonse
+      //Response -> href -> propstat ->
+      //                                prop -> getetag
+      //                                     -> cal:calendar-data
+      //                                status -> 200 OK
+      QDomNode thisResponse = list_response.item(i);
+
+      QString uri = "";
+      QString eTag = "";
+      QString propStatus = "";
+      QString calendarData = "";
+
+      QDomElement href = thisResponse.firstChildElement("d:href");
+      if (!href.isNull())
+        uri = href.text();
+
+
+
+      QDomNode thisPropStat = thisResponse.firstChildElement("d:propstat");
+      if (!thisPropStat.isNull())
+      {
+        QDomNode thisProp = thisPropStat.firstChildElement("d:prop");
+        if (!thisProp.isNull())
+        {
+          QDomElement bodyEtag = thisProp.firstChildElement("d:getetag");
+          if (!bodyEtag.isNull())
+            eTag = bodyEtag.text();
+
+          QDomElement bodyCalendarData = thisProp.firstChildElement("cal:calendar-data");
+          if (!bodyCalendarData.isNull())
+          {
+            //It's equal for todo and event
+            parseCalendarData(bodyCalendarData.text(), uri, eTag);
+          }
+        }
+      }
+    }
+}
+
+void Calendar::parseCalendarData(QString entity, QString uri, QString eTag){
+    //Create a map with all possible element in a VTODO or VEVENT (SUMMARY, RRULE, EXDATA, LOCATION...)
+    QMap<QString, QString> map;
+    QList<QString> lines = entity.split("\n");
+
+    //manage event
+    if(entity.contains("BEGIN:VEVENT")){
+    //0//BEGIN:VCALENDAR
+    //1//VERSION:2.0
+    //2//PRODID:-//Sabre//Sabre VObject 4.2.2//EN
+    //3//BEGIN:VEVENT
+    //4//UID:uriDiProva
+    //5//DTSTAMP:20211203T164559Z
+    //6//DTSTART:20211224T042000
+    //7//DTEND:20211231T000000
+    //8//SUMMARY:Prova
+    //9//LOCATION:Luogo di prova
+    //10//DESCRIPTION:descrizione di prova
+    //11//END:VEVENT
+    //12//END:VCALENDAR
+        //Every VCalendar object could contain only a "real" entity (VEVENT ir VTODO)
+        //Strip off useless lines
+        int start = lines.indexOf("BEGIN:VEVENT");
+        int numberOfUsefulLines = lines.indexOf("END:VEVENT") - start +1;
+        QList<QString> event = lines.sliced(start, numberOfUsefulLines);
+        for(int i=0; i<event.length(); i++){
+            QVector<QString> line = event[i].split(":");
+            map.insert(line[0], line[1]);
+        }
+        Event *e = new Event();
+        //We can check for a specific property or try to get value and assign it by default
+        //if (map.contains("SUMMARY"))
+        //  summary = map.value("SUMMARY");
+        QString uid = map.value("UID", "");
+        //verificare se il formato è giusto
+        //20211203T164559Z
+        QDateTime dtStamp = QDateTime::fromString(map.value("DTSTAMP", "yyyyMMddTHHmmssz"));
+        QDateTime dtStart = QDateTime::fromString(map.value("DTSTART", "yyyyMMddTHHmmssz"));
+        QDateTime dtEnd = QDateTime::fromString(map.value("DTEND", "yyyyMMddTHHmmssz"));
+        QString summary = map.value("SUMMARY", "");
+        QString location = map.value("LOCATION", "");
+        QString description = map.value("DESCRIPTION", "");
+        e->setUid(uid);
+        e->setStartDateTime(dtStart);
+        e->setEndDateTime(dtEnd);
+        e->setSummary(summary);
+        e->setLocation(location);
+        e->setDescription(description);
+
+        //Sbagliato, l'uri è solo l'ultima parte
+        e->setFilename(uri);
+        e->setEtag(eTag);
+
+        _eventsList.append(e);
+        //ADD what you want
+        //dt are QString and not QDateTime... find a way to construct it from the string
+
+    }//manage todo
+    else if (entity.contains("BEGIN:VTODO")){
+
+    }
+}
 
 void Calendar::handleRemoveCalendar(){
     // qDebug() << "Sono lo slot dentro calendar";
@@ -349,4 +461,9 @@ void Calendar::handleAddingVEventFinished(){
         _eventsList.removeLast();
         emit eventRetrieveError();
     }
+}
+
+const QList<Event *> &Calendar::eventsList() const
+{
+    return _eventsList;
 }

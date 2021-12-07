@@ -39,6 +39,8 @@ signals:
     void eventDialogErrorMessage(QString errorMessage);
     void closeEventDialog(Event* event);
 
+    void printEvent(QList<Event*> eventList);
+
 private:
     QList<Calendar*> _calendarList;
 

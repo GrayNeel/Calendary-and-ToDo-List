@@ -36,6 +36,7 @@ private slots:
     void handleAddEventError();
     void handleAddEventWithoutError();
 
+    void handlePrintEvent(QList<Event*> eventList);
 private:
     Ui::MainWindow *ui;
     Dialog* dialog;

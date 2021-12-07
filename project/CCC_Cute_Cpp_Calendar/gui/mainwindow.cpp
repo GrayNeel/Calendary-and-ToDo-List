@@ -35,6 +35,8 @@ void MainWindow::on_actionApri_calendario_triggered()
         connect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
         connect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
         connect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
+
+        connect(client, &Client::printEvent, this, &MainWindow::handlePrintEvent);
     }
 
     dialog->setModal("true");
@@ -53,8 +55,16 @@ void MainWindow::handleCloseDialog() {
     disconnect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
     disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
 
+    //disconnect(client, &Client::printEvent, this, &MainWindow::handlePrintEvent);
+
     delete dialog;
     dialog = NULL;
+}
+
+void MainWindow::handlePrintEvent(QList<Event*> eventList){
+    ui->textEdit->setText("Sono presenti: " + QString::number(eventList.length())+" eventi per il calendario aggiunto");
+    for(int i =0; i< eventList.length(); i++)
+        ui->textEdit->append(eventList[i]->summary() +" "+ eventList[i]->location());
 }
 
 void MainWindow::handleAddCalendarFinished(Calendar* cal) {

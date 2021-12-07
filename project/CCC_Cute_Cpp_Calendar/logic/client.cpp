@@ -53,6 +53,7 @@ void Client::handleAddCalendarFinished() {
     disconnect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
 
     emit closeDialog(cal);
+    emit printEvent(cal->eventsList());
 }
 
 void Client::handleRemoveCalendarFromList(Calendar* cal){

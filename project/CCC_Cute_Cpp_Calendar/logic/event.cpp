@@ -32,6 +32,11 @@ void Event::setUid(const QString &newUid)
     _uid = newUid;
 }
 
+void Event::setDescription(const QString &newDescription)
+{
+    _description = newDescription;
+}
+
 void Event::setFilename(const QString &newFilename)
 {
     _filename = newFilename;

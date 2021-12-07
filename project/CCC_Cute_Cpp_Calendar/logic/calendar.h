@@ -29,6 +29,8 @@ public:
 
     const QString &displayName() const;
 
+    const QList<Event *> &eventsList() const;
+
 signals:
     void calendarRetrieveError(QString errorMessage);
     void calendarAdded();
@@ -73,6 +75,8 @@ private:
     QList<Event*> _eventsList;
     QList<Todo*> _todosList;
     void getForLastResource(QUrl resourceUrl);
+    void parseResponse();
+    void parseCalendarData(QString entity, QString uri, QString etag);
 };
 
 #endif // CALENDAR_H
