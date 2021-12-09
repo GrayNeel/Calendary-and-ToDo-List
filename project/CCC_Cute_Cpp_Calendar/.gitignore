@@ -71,3 +71,5 @@ Thumbs.db
 *.dll
 *.exe
 
+# Ignore personal config file of QT
+CMakeLists.txt.user
