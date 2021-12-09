@@ -6,9 +6,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Create the client that will handle the calendar list
     client = new Client();
+
     dialog = NULL;
     eventDialog = NULL;
+
+    // This handle the updates on GUI of calendars available
+    // TODO: check if it is possible to remove them from the variables of MainWindow
     _calBoxesLayout = new QVBoxLayout();
     _calBoxesLayout->setAlignment(Qt::AlignTop);
     _calBoxes = new QWidget(ui->scrollArea);
@@ -31,11 +37,11 @@ void MainWindow::on_actionApri_calendario_triggered()
 {
     if(dialog == NULL) {
         dialog = new Dialog();
+
         connect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
         connect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
         connect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
         connect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
-
         connect(client, &Client::printEvent, this, &MainWindow::handlePrintEvent);
     }
 

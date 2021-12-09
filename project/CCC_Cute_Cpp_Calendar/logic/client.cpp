@@ -9,6 +9,7 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
 {
 //    qDebug() << "handleAddCalendar:" + username + " " + password + " " + url;
 
+    // Create in advance the calendar object. If there will be any error it will be removed.
     Calendar* cal = new Calendar(this);
     connect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     connect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
@@ -24,8 +25,6 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
     }
 
     emit requestSyncToken();
-
-    //delete cal;
 }
 
 void Client::handleAddCalendarError(QString errorMessage) {

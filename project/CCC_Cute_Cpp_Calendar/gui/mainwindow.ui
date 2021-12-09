@@ -114,6 +114,9 @@
     </item>
     <item>
      <widget class="QCalendarWidget" name="calendarWidget">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -125,6 +128,9 @@
         <width>400</width>
         <height>481</height>
        </size>
+      </property>
+      <property name="verticalHeaderFormat">
+       <enum>QCalendarWidget::NoVerticalHeader</enum>
       </property>
      </widget>
     </item>

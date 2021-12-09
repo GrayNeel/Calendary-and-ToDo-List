@@ -21,28 +21,29 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    //void setClient(Client *client);
 
 private slots:
     void on_actionApri_calendario_triggered();
+    void on_calendarWidget_clicked(const QDate &date);
+    void on_calendarWidget_selectionChanged();
+
     void handleCloseDialog();
     void handleAddCalendarFinished(Calendar* cal);
-
-    void on_calendarWidget_clicked(const QDate &date);
 
     void handleRemoveCalendarBox(Calendar* cal);
     void eventShowEventDialog(Calendar* cal);
     void handleAddEventFinished();
     void handleAddEventError();
     void handleAddEventWithoutError();
-
     void handlePrintEvent(QList<Event*> eventList);
-    void on_calendarWidget_selectionChanged();
+
 
 private:
     Ui::MainWindow *ui;
+
     Dialog* dialog;
     EventDialog* eventDialog;
+
     Client* client;
 
     QWidget* _calBoxes;
