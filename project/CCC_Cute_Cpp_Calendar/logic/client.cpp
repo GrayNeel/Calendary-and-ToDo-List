@@ -13,6 +13,7 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
     Calendar* cal = new Calendar(this);
     connect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     connect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
+    connect(cal, &Calendar::refreshEventVisualization, this, &Client::handleRefreshEventVisualization);
 
     _calendarList.append(cal);
     cal->setUsername(username);
@@ -40,6 +41,7 @@ void Client::handleAddCalendarError(QString errorMessage) {
 
     disconnect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     disconnect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
+    disconnect(cal, &Calendar::refreshEventVisualization, this, &Client::handleRefreshEventVisualization);
 
     delete cal;
 
@@ -87,4 +89,8 @@ QList<Event*> Client::getEventByDate(const QDate &date) {
     }
 
     return eventsList;
+}
+
+void Client::handleRefreshEventVisualization(){
+    emit refreshEventVisualization();
 }

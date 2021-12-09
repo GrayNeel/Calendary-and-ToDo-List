@@ -307,8 +307,13 @@ void Calendar::parseCalendarData(QString entity, QString uri, QString eTag){
         e->setLocation(location);
         e->setDescription(description);
 
+        //e->setFilename(uri);
         //Sbagliato, l'uri è solo l'ultima parte
-        e->setFilename(uri);
+        //QString filename = uri.replace(_url, "");
+        QList<QString> resources = uri.split("/");
+        QString filename = resources.last();
+        qDebug() << filename;
+        e->setFilename(filename);
         e->setEtag(eTag);
 
         e->setColour(_colour);
@@ -440,7 +445,7 @@ void Calendar::handleGetFinished(){
         else
             qDebug()<< "Errore: nessun header Etag trovato nella risposta";
         //emit eventAddFinished();
-
+    //TODO rifai richiesta per l'etag
     } else {
         qDebug() << "Get errata: " << _statusCode;
         //_eventsList.removeLast();
@@ -466,9 +471,58 @@ void Calendar::handleAddingVEventFinished(){
     }
 }
 
-//TODO
-void Calendar::deleteEvent(Event* event){
 
+void Calendar::deleteEvent(Event* event){
+    QNetworkRequest request;
+
+    // Building the header of a DELETE request to delete a VCalendar Object of ONE VEVENT
+
+    request.setUrl(QUrl(_url + event->filename()));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    //"The "If-None-Match: *" request header ensures that the client will not inadvertently overwrite an existing resource
+    //if the last path segment turned out to already be used"
+    request.setRawHeader("If-Match", QByteArray(event->etag().toLatin1()));
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+
+    //No custom request, just a put
+    _reply = _manager->sendCustomRequest(request, QByteArray("DELETE"));
+
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleDeletingVEventFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
+
+}
+
+void Calendar::handleDeletingVEventFinished(){
+    _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    //QUrl resourceUri = _reply->url();
+    QUrl resourceUrl = _reply->request().url();
+    QList<QString> resources = resourceUrl.toString().split("/");
+    QString filename = resources.last();
+
+
+    if (_statusCode >= 200 && _statusCode < 300) {
+        qDebug() << "Evento eliminato correttamente";
+        for(Event* ev: _eventsList){
+            if(ev->filename().compare(filename) == 0){
+                _eventsList.removeOne(ev);
+                break;
+            }
+        }
+        emit refreshEventVisualization();
+
+    } else {
+        if(_statusCode == 412){
+            qDebug() << "Evento non aggiunto. Errore: 412. \"Precondition failed\" perchè l'etag è sbagliato" << _statusCode;
+        }
+        qDebug() << "Evento non rimosso. Errore: " << _statusCode;
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText("L'evento NON è stato rimosso");
+        msgBox.exec();
+    }
 }
 
 const QString &Calendar::colour() const

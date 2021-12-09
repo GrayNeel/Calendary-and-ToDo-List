@@ -37,6 +37,8 @@ private slots:
     void handleAddEventWithoutError();
     void handlePrintEvent(QList<Event*> eventList);
 
+    void handleRefreshEventScrollArea();
+
 
 private:
     Ui::MainWindow *ui;

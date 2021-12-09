@@ -43,6 +43,7 @@ void MainWindow::on_actionApri_calendario_triggered()
         connect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
         connect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
         connect(client, &Client::printEvent, this, &MainWindow::handlePrintEvent);
+        connect(client, &Client::refreshEventVisualization, this, &MainWindow::handleRefreshEventScrollArea);
     }
 
     dialog->setModal("true");
@@ -91,11 +92,11 @@ void MainWindow::handlePrintEvent(QList<Event*> eventList){
         //QLabel* theText = new QLabel(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
         //theText->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
         QToolButton* editEvent = new QToolButton();
-        editEvent->setText("Cancella");
+        editEvent->setText("Modifica");
         //editEvent->setIcon(QIcon::fromTheme("edit-copy"));
         QToolButton* deleteEvent = new QToolButton();
         //editEvent->setIcon(QIcon::fromTheme("edit-delete"));
-        deleteEvent->setText("Modifica");
+        deleteEvent->setText("Cancella");
         QWidget* colourBox = new QWidget();
         colourBox->setStyleSheet(QString( "background-color: " + eventList[i]->colour() + ";" ));
         colourBox->setFixedSize(22, 22);
@@ -112,7 +113,7 @@ void MainWindow::handlePrintEvent(QList<Event*> eventList){
 
         connect(theText, &QPushButton::clicked, eventList[i], &Event::showEvent);
         connect(editEvent, &QAbstractButton::clicked, eventList[i], &Event::showEvent);
-        connect(deleteEvent, &QAbstractButton::clicked, eventList[i], &Event::showEvent);
+        connect(deleteEvent, &QAbstractButton::clicked, eventList[i], &Event::handleRemoveEvent);
     }
 
     QWidget* eventBoxes = new QWidget(ui->eventScrollArea);
@@ -125,6 +126,10 @@ void MainWindow::handlePrintEvent(QList<Event*> eventList){
     ui->eventScrollArea->setWidget(eventBoxes);
 
     ui->eventScrollArea->widget()->show();
+}
+
+void MainWindow::handleRefreshEventScrollArea(){
+    handlePrintEvent(client->getEventByDate(ui->calendarWidget->selectedDate()));
 }
 
 void MainWindow::handleAddCalendarFinished(Calendar* cal) {

@@ -155,3 +155,8 @@ void Event::showEvent(){
                    "Ora di fine:\t" + _endDateTime.time().toString(italianTimeFormat) + "\n");
     msgBox.exec();
 }
+
+void Event::handleRemoveEvent(){
+    // qDebug() << "Sono lo slot dentro event";
+    emit removeEvent(this);
+}
