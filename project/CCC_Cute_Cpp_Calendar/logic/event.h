@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDateTime>
+#include <QMessageBox>
 
 class Event : public QObject
 {
@@ -40,9 +41,11 @@ public:
     void setColour(const QString &newColour);
 
 signals:
-
+    void removeEvent(Event* event);
 public slots:
 
+    void showEvent();
+    void handleRemoveEvent();
 private slots:
 
 private:

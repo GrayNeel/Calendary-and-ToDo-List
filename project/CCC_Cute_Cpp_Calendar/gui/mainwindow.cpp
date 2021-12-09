@@ -86,7 +86,7 @@ void MainWindow::handlePrintEvent(QList<Event*> eventList){
 
     for(int i =0; i< eventList.length(); i++) {
         QHBoxLayout* theLine = new QHBoxLayout();
-        QPushButton* theText = new QPushButton(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
+        QPushButton* theText = new QPushButton(QString(eventList[i]->summary()));
         //I can't make clickable a QLabel... so I use a QPushButton
         //QLabel* theText = new QLabel(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
         //theText->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -109,6 +109,10 @@ void MainWindow::handlePrintEvent(QList<Event*> eventList){
         theLine->addWidget(editEvent);
         theLine->addWidget(deleteEvent);
         fullBox->addLayout(theLine);
+
+        connect(theText, &QPushButton::clicked, eventList[i], &Event::showEvent);
+        connect(editEvent, &QAbstractButton::clicked, eventList[i], &Event::showEvent);
+        connect(deleteEvent, &QAbstractButton::clicked, eventList[i], &Event::showEvent);
     }
 
     QWidget* eventBoxes = new QWidget(ui->eventScrollArea);
@@ -166,7 +170,15 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
 
     removeButton->setMaximumSize(140,40);
     thirdLine->addWidget(removeButton);
+
+    //Box with the colour of the calendar
+    QWidget* colourBox = new QWidget();
+    colourBox->setStyleSheet(QString( "background-color: " + cal->colour() + ";" ));
+    colourBox->setFixedSize(22, 22);
+    thirdLine->addWidget(colourBox);
+
     thirdLine->setAlignment(Qt::AlignLeft);
+
     // Build now the whole box
     QVBoxLayout* fullBox = new QVBoxLayout();
     fullBox->setAlignment(Qt::AlignLeft);

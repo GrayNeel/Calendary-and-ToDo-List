@@ -313,6 +313,8 @@ void Calendar::parseCalendarData(QString entity, QString uri, QString eTag){
 
         e->setColour(_colour);
         _eventsList.append(e);
+
+        connect(e, &Event::removeEvent, this, &Calendar::deleteEvent);
         //ADD what you want
         //dt are QString and not QDateTime... find a way to construct it from the string
 
@@ -337,7 +339,7 @@ void Calendar::handleAddEvent(QString summary, QString location, QString descrip
     //update API is based on a specific uid
     Event* newEvent = new Event(QString("-1"), QString(""), summary, location, description, QString(""), QString(""), startDateTime, endDateTime, _colour);
     _eventsList.append(newEvent);
-
+    connect(newEvent, &Event::removeEvent, this, &Calendar::deleteEvent);
     APIAddEvent(newEvent);
 }
 
@@ -462,6 +464,11 @@ void Calendar::handleAddingVEventFinished(){
         _eventsList.removeLast();
         emit eventRetrieveError();
     }
+}
+
+//TODO
+void Calendar::deleteEvent(Event* event){
+
 }
 
 const QString &Calendar::colour() const
