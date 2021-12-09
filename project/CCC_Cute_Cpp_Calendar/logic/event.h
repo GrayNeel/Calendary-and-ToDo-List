@@ -9,7 +9,7 @@ class Event : public QObject
     Q_OBJECT
 public:
     explicit Event(QObject *parent = nullptr);
-    Event(const QString &uid, const QString &filename, const QString &summary, const QString &location, const QString &description, const QString &rrule, const QString &exdate, const QDateTime &startDateTime, const QDateTime &endDateTime);
+    Event(const QString &uid, const QString &filename, const QString &summary, const QString &location, const QString &description, const QString &rrule, const QString &exdate, const QDateTime &startDateTime, const QDateTime &endDateTime, const QString &colour);
 
     void setDescription(const QString &newDescription);
 
@@ -36,6 +36,9 @@ public:
     const QDateTime &endDateTime() const;
     const QString &etag() const;
 
+    const QString &colour() const;
+    void setColour(const QString &newColour);
+
 signals:
 
 public slots:
@@ -53,6 +56,8 @@ private:
     QDateTime _startDateTime;
     QDateTime _endDateTime;
     QString _etag;
+
+    QString _colour;
 };
 
 #endif // EVENT_H

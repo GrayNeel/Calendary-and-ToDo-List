@@ -5,7 +5,7 @@ Event::Event(QObject *parent) : QObject(parent)
 
 }
 
-Event::Event(const QString &uid, const QString &filename, const QString &summary, const QString &location, const QString &description, const QString &rrule, const QString &exdate, const QDateTime &startDateTime, const QDateTime &endDateTime) : _uid(uid),
+Event::Event(const QString &uid, const QString &filename, const QString &summary, const QString &location, const QString &description, const QString &rrule, const QString &exdate, const QDateTime &startDateTime, const QDateTime &endDateTime, const QString &colour) : _uid(uid),
     _filename(filename),
     _summary(summary),
     _location(location),
@@ -13,7 +13,8 @@ Event::Event(const QString &uid, const QString &filename, const QString &summary
     _rrule(rrule),
     _exdate(exdate),
     _startDateTime(startDateTime),
-    _endDateTime(endDateTime)
+    _endDateTime(endDateTime),
+    _colour(colour)
 {
     if (uid.toInt()==-1)
       {
@@ -125,6 +126,16 @@ const QDateTime &Event::endDateTime() const
 const QString &Event::etag() const
 {
     return _etag;
+}
+
+const QString &Event::colour() const
+{
+    return _colour;
+}
+
+void Event::setColour(const QString &newColour)
+{
+    _colour = newColour;
 }
 
 

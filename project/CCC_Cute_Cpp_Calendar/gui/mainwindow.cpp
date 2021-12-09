@@ -70,6 +70,12 @@ void MainWindow::handleCloseDialog() {
 void MainWindow::handlePrintEvent(QList<Event*> eventList){
     ui->eventScrollArea->widget()->hide();
 
+//    ui->eventScrollArea->setStyleSheet(QString("color: white;"
+//                                               "background-color: #8BC34A;"
+//                                               "selection-color: yellow;"
+//                                               "selection-background-color: blue;"
+//                                               "background-attachment: scroll;"));
+
     QHBoxLayout* firstLine = new QHBoxLayout();
     QLabel* defaultText = new QLabel(QString("Sono presenti: " + QString::number(eventList.length())+" eventi per il calendario aggiunto"));
     firstLine->addWidget(defaultText);
@@ -80,8 +86,28 @@ void MainWindow::handlePrintEvent(QList<Event*> eventList){
 
     for(int i =0; i< eventList.length(); i++) {
         QHBoxLayout* theLine = new QHBoxLayout();
-        QLabel* theText = new QLabel(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
+        QPushButton* theText = new QPushButton(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
+        //I can't make clickable a QLabel... so I use a QPushButton
+        //QLabel* theText = new QLabel(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
+        //theText->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+        QToolButton* editEvent = new QToolButton();
+        editEvent->setText("Cancella");
+        //editEvent->setIcon(QIcon::fromTheme("edit-copy"));
+        QToolButton* deleteEvent = new QToolButton();
+        //editEvent->setIcon(QIcon::fromTheme("edit-delete"));
+        deleteEvent->setText("Modifica");
+        QWidget* colourBox = new QWidget();
+        colourBox->setStyleSheet(QString( "background-color: " + eventList[i]->colour() + ";" ));
+        colourBox->setFixedSize(22, 22);
+//        QPalette pal = QPalette();
+//        pal.setColor(QPalette::Window, Qt::black);
+//        fakeWidget->setAutoFillBackground(true);
+//        fakeWidget->setPalette(pal);
+//        fakeWidget->show();
+        theLine->addWidget(colourBox);
         theLine->addWidget(theText);
+        theLine->addWidget(editEvent);
+        theLine->addWidget(deleteEvent);
         fullBox->addLayout(theLine);
     }
 

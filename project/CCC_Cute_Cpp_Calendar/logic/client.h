@@ -43,10 +43,13 @@ signals:
 
 private:
     QList<Calendar*> _calendarList;
+    QList<QString> _colourList = { "#ef5350", "#ab47bc", "#42a5f5", "#26a69a", "#d4e157", "#ffa726", "#bdbdbd"};
 
 
 private slots:
     void handleAddCalendarFinished();
+
+
 
 };
 

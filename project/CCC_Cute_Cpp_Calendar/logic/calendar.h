@@ -31,6 +31,9 @@ public:
 
     const QList<Event *> &eventsList() const;
 
+    const QString &colour() const;
+    void setColour(const QString &newColour);
+
 signals:
     void calendarRetrieveError(QString errorMessage);
     void calendarAdded();
@@ -71,6 +74,8 @@ private:
     QString _displayName;
     QString _cTag;
     QString _syncToken;
+
+    QString _colour;
 
     QList<Event*> _eventsList;
     QList<Todo*> _todosList;

@@ -311,6 +311,7 @@ void Calendar::parseCalendarData(QString entity, QString uri, QString eTag){
         e->setFilename(uri);
         e->setEtag(eTag);
 
+        e->setColour(_colour);
         _eventsList.append(e);
         //ADD what you want
         //dt are QString and not QDateTime... find a way to construct it from the string
@@ -334,7 +335,7 @@ void Calendar::handleAddEvent(QString summary, QString location, QString descrip
     //if uid=-1 I have a new event. Constructor will choose a new one based on timestamp
     //if filename is empty constructor create it basing on uid
     //update API is based on a specific uid
-    Event* newEvent = new Event(QString("-1"), QString(""), summary, location, description, QString(""), QString(""), startDateTime, endDateTime);
+    Event* newEvent = new Event(QString("-1"), QString(""), summary, location, description, QString(""), QString(""), startDateTime, endDateTime, _colour);
     _eventsList.append(newEvent);
 
     APIAddEvent(newEvent);
@@ -461,6 +462,16 @@ void Calendar::handleAddingVEventFinished(){
         _eventsList.removeLast();
         emit eventRetrieveError();
     }
+}
+
+const QString &Calendar::colour() const
+{
+    return _colour;
+}
+
+void Calendar::setColour(const QString &newColour)
+{
+    _colour = newColour;
 }
 
 const QList<Event *> &Calendar::eventsList() const

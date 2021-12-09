@@ -18,6 +18,12 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
     cal->setUsername(username);
     cal->setPassword(password);
 
+    //simple assigning colour property from a list of possible colour
+    QString first = _colourList.first();
+    cal->setColour(first);
+    _colourList.removeFirst();
+    _colourList.append(first);
+
     if(url.back() != QChar('/')) {
         cal->setUrl(url.append('/'));
     }else{
