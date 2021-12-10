@@ -178,12 +178,13 @@ void MainWindow::handleAddTodoFinished() {
      *  but clearing the line texts inside of it
      **/
     disconnect(todoDialog, &TodoDialog::eventAddTodo, todoDialog->getCal(), &Calendar::handleAddTodo);
+    disconnect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleAddTodoFinished);
     disconnect(todoDialog->getCal(), &Calendar::todoAddFinished, this, &MainWindow::handleAddTodoFinished);
     disconnect(todoDialog->getCal(), &Calendar::todoAddFinished, this, &MainWindow::handleAddTodoWithoutError);
     disconnect(todoDialog->getCal(), &Calendar::todoRetrieveError, this, &MainWindow::handleAddTodoError);
 
     delete todoDialog;
-    eventDialog = NULL;
+    todoDialog = NULL;
 }
 
 /**
