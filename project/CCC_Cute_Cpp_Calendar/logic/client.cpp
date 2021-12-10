@@ -91,6 +91,21 @@ QList<Event*> Client::getEventByDate(const QDate &date) {
     return eventsList;
 }
 
+QList<Todo*> Client::getTodoByDate(const QDate &date) {
+    QList<Todo*> todosList;
+
+    for (Calendar* cal : _calendarList) {
+        for (Todo* td : cal->todosList()) {
+            qDebug() << td->dueDateTime().toString();
+            if(td->dueDateTime().date() == date) {
+                todosList.append(td);
+            }
+        }
+    }
+
+    return todosList;
+}
+
 const QList<Calendar *> &Client::calendarList() const
 {
     return _calendarList;

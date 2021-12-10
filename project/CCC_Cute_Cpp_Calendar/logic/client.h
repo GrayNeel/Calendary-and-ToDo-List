@@ -25,6 +25,7 @@ public:
     QList<Event*> getEventByDate(const QDate &date);
     const QList<Calendar *> &calendarList() const;
 
+    QList<Todo*> getTodoByDate(const QDate &date);
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
     void handleAddCalendarError(QString errorMessage);

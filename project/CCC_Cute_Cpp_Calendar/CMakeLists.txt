@@ -33,6 +33,9 @@ set(PROJECT_SOURCES
         gui/eventdialog.h
         gui/eventdialog.cpp
         gui/eventdialog.ui
+        gui/tododialog.h
+        gui/tododialog.cpp
+        gui/tododialog.ui
         logic/client.h
         logic/client.cpp
         logic/calendar.h

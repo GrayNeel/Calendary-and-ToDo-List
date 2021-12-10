@@ -7,6 +7,7 @@
 
 #include "dialog.h"
 #include "eventdialog.h"
+#include "tododialog.h"
 
 #include "logic/client.h"
 
@@ -38,11 +39,19 @@ private slots:
     void handleUpdateMainWindowWidgets();
 
     void handleCloseModifyEventDialog();
+    void eventShowTodoDialog(Calendar *cal);
+    void handleAddTodoFinished();
+    void handleAddTodoError();
+    void handleAddTodoWithoutError();
+    void handleShowModifyTodoDialog(Todo* todo);
+    void handleCloseModifyTodoDialog();
+
 private:
     Ui::MainWindow *ui;
 
     Dialog* dialog;
     EventDialog* eventDialog;
+    TodoDialog* todoDialog;
 
     Client* client;
 
@@ -51,6 +60,7 @@ private:
     void printCalendars();
     void printEmptyEvents();
     void printEventsList(QList <Event*> eventsList);
+    void printTodosList(QList<Todo*> todosList);
     void printEmptyTodos();
 
 };

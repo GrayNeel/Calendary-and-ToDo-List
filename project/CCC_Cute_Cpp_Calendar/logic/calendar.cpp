@@ -325,7 +325,51 @@ void Calendar::parseCalendarData(QString entity, QString uri, QString eTag){
 
     }//manage todo
     else if (entity.contains("BEGIN:VTODO")){
+                    //1VERSION:2.0
+                    //2CALSCALE:GREGORIAN
+                    //3BEGIN:VTODO
+                    //4UID:132456762153245
+                    //5SUMMARY:Do the dishes
+                    //6DUE:20121028T115600Z
+                    //7END:VTODO
+                    //8END:VCALENDAR
+        //Every VCalendar object could contain only a "real" entity (VEVENT ir VTODO)
+        //Strip off useless lines
+        int start = lines.indexOf("BEGIN:VTODO");
+        int numberOfUsefulLines = lines.indexOf("END:VTODO") - start +1;
+        QList<QString> todo = lines.sliced(start, numberOfUsefulLines);
+        for(int i=0; i<todo.length(); i++){
+            QVector<QString> line = todo[i].split(":");
+            map.insert(line[0], line[1]);
+        }
+        Todo *t = new Todo();
+        //We can check for a specific property or try to get value and assign it by default
+        //if (map.contains("SUMMARY"))
+        //  summary = map.value("SUMMARY");
+        QString uid = map.value("UID", "");
+        //verificare se il formato è giusto
+        //20211203T164559Z
+        QDateTime dtDue = QDateTime::fromString(map.value("DUE"), "yyyyMMddTHHmmssZ");
+        QString summary = map.value("SUMMARY", "");
+        t->setUid(uid);
+        t->setDueDateTime(dtDue);
+        t->setSummary(summary);
 
+        //e->setFilename(uri);
+        //Sbagliato, l'uri è solo l'ultima parte
+        //QString filename = uri.replace(_url, "");
+        QList<QString> resources = uri.split("/");
+        QString filename = resources.last();
+        qDebug() << filename;
+        t->setFilename(filename);
+        t->setEtag(eTag);
+
+        t->setColour(_colour);
+        _todosList.append(t);
+
+        connect(t, &Todo::removeTodo, this, &Calendar::deleteTodo);
+        //ADD what you want
+        //dt are QString and not QDateTime... find a way to construct it from the string
     }
 }
 
@@ -335,6 +379,10 @@ void Calendar::handleRemoveCalendar(){
 
 void Calendar::handleAddNewEventPopUp() {
     emit showEventDialog(this);
+}
+
+void Calendar::handleAddNewTodoPopUp() {
+    emit showTodoDialog(this);
 }
 
 void Calendar::handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
@@ -520,6 +568,140 @@ void Calendar::handleDeletingVEventFinished(){
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Critical);
         msgBox.setText("L'evento NON è stato rimosso");
+        msgBox.exec();
+    }
+}
+
+void Calendar::handleAddTodo(QString summary, QDateTime dueDateTime) {
+    //if uid=-1 I have a new event. Constructor will choose a new one based on timestamp
+    //if filename is empty constructor create it basing on uid
+    //update API is based on a specific uid
+
+    Todo* newTodo = new Todo(QString("-1"), QString(""), summary, dueDateTime, _colour);
+    _todosList.append(newTodo);
+    connect(newTodo, &Todo::removeTodo, this, &Calendar::deleteTodo);
+    APIAddTodo(newTodo);
+}
+
+/**
+ *
+ * @brief This API push a new event in a VCalendar Object from a specific calendar
+ */
+void Calendar::APIAddTodo(Todo* todo) {
+    // https://datatracker.ietf.org/doc/html/rfc4791#section-5.3.2
+    QNetworkRequest request;
+
+    // Building the header of a PUT request to push a VCalendar Object for ONE VEVENT
+
+    request.setUrl(QUrl(_url + todo->filename()));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    //"The "If-None-Match: *" request header ensures that the client will not inadvertently overwrite an existing resource
+    //if the last path segment turned out to already be used"
+    request.setRawHeader("If-None-Match", "*");
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+
+    // Building the Body
+    QString requestString = "BEGIN:VCALENDAR\r\n"
+                            "VERSION:2.0\r\n"
+                            "BEGIN:VTODO\r\n"
+                            "UID:" + todo->uid() + "\r\n"
+                            "SUMMARY:" + todo->summary() + "\r\n"
+                            "DUE:" + todo->dueDateTime().toString("yyyyMMddTHHmmss") + "Z\r\n"
+                            "END:VTODO\r\nEND:VCALENDAR";
+
+    QBuffer* buffer = new QBuffer();
+    buffer->open(QIODevice::ReadWrite);
+
+    int bufferSize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+
+    QByteArray contentLength;
+    contentLength.append(QString::number(bufferSize).toStdString());
+
+    request.setRawHeader("Content-Length", contentLength);
+
+    //No custom request, just a put
+    _reply = _manager->put(request, buffer);
+
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVTodoFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
+}
+
+void Calendar::handleAddingVTodoFinished(){
+    _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    //QUrl resourceUri = _reply->url();
+    QUrl resourceUrl = _reply->request().url();
+
+    if (_statusCode >= 200 && _statusCode < 300) {
+        qDebug() << "Todo aggiunto correttamente";
+        //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
+        getForLastResource(resourceUrl);
+        emit todoAddFinished();
+
+    } else {
+        qDebug() << "Todo non aggiunto. Errore: " << _statusCode;
+        _todosList.removeLast();
+        emit todoRetrieveError();
+    }
+}
+
+const QList<Todo *> &Calendar::todosList() const
+{
+    return _todosList;
+}
+
+void Calendar::deleteTodo(Todo* todo){
+    QNetworkRequest request;
+
+    // Building the header of a DELETE request to delete a VCalendar Object of ONE VTODO
+
+    request.setUrl(QUrl(_url + todo->filename()));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    //"The "If-None-Match: *" request header ensures that the client will not inadvertently overwrite an existing resource
+    //if the last path segment turned out to already be used"
+    request.setRawHeader("If-Match", QByteArray(todo->etag().toLatin1()));
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+
+    //No custom request, just a put
+    _reply = _manager->sendCustomRequest(request, QByteArray("DELETE"));
+
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleDeletingVTodoFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
+
+}
+
+void Calendar::handleDeletingVTodoFinished(){
+    _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    //QUrl resourceUri = _reply->url();
+    QUrl resourceUrl = _reply->request().url();
+    QList<QString> resources = resourceUrl.toString().split("/");
+    QString filename = resources.last();
+
+
+    if (_statusCode >= 200 && _statusCode < 300) {
+        qDebug() << "Todo eliminato correttamente";
+        for(Todo* td: _todosList){
+            if(td->filename().compare(filename) == 0){
+                _todosList.removeOne(td);
+                break;
+            }
+        }
+        emit refreshEventVisualization();
+
+    } else {
+        if(_statusCode == 412){
+            qDebug() << "Todo non aggiunto. Errore: 412. \"Precondition failed\" perchè l'etag è sbagliato" << _statusCode;
+        }
+        qDebug() << "Todo non rimosso. Errore: " << _statusCode;
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText("Il Todo NON è stato rimosso");
         msgBox.exec();
     }
 }

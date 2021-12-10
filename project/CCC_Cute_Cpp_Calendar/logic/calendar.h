@@ -34,6 +34,8 @@ public:
     const QString &colour() const;
     void setColour(const QString &newColour);
 
+    const QList<Todo *> &todosList() const;
+
 signals:
     void calendarRetrieveError(QString errorMessage);
     void calendarAdded();
@@ -42,12 +44,17 @@ signals:
     void eventAddFinished();
     void eventRetrieveError();
     void refreshEventVisualization();
+    void showTodoDialog(Calendar* cal);
+    void todoAddFinished();
+    void todoRetrieveError();
 
 public slots:
     void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
+    void handleAddTodo(QString summary, QDateTime dueDateTime);
 
 
     void deleteEvent(Event *event);
+    void deleteTodo(Todo *todo);
 
 private slots:
     void APIRequestSyncToken(void);
@@ -58,6 +65,7 @@ private slots:
     void handleRequestVCalendarObjectsFinished();
     void handleRemoveCalendar();
     void handleAddNewEventPopUp();
+    void handleAddNewTodoPopUp();
     void handleDeletingVEventFinished();
 
     void handleGetFinished();
@@ -66,6 +74,8 @@ private slots:
 
     void APIAddEvent(Event *event);
     void handleAddingVEventFinished();
+    void handleDeletingVTodoFinished();
+    void handleAddingVTodoFinished();
 private:
     QString _username;
     QString _password;
@@ -86,6 +96,7 @@ private:
     void getForLastResource(QUrl resourceUrl);
     void parseResponse();
     void parseCalendarData(QString entity, QString uri, QString etag);
+    void APIAddTodo(Todo *todo);
 };
 
 #endif // CALENDAR_H

@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     dialog = NULL;
     eventDialog = NULL;
+    todoDialog = NULL;
 
     // Set initial state of GUI
     handleUpdateMainWindowWidgets();
@@ -100,6 +101,7 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
     eventDialog->show();
 }
 
+
 /**
  * @brief Handle the closing of an EventDialog: for an event added succesfully, unsuccesfully or when the modal is closed by the proper button
  */
@@ -112,6 +114,8 @@ void MainWindow::handleAddEventFinished() {
      **/
     disconnect(eventDialog, &EventDialog::eventAddEvent, eventDialog->getCal(), &Calendar::handleAddEvent);
     disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventFinished);
+    disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
+    disconnect(eventDialog->getCal(), &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
 
     delete eventDialog;
     eventDialog = NULL;
@@ -137,6 +141,71 @@ void MainWindow::handleAddEventWithoutError() {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Information);
     msgBox.setText("L'evento è stato aggiunto correttamente");
+    msgBox.exec();
+}
+
+/**
+ * @brief Show the Todo Dialog which is paired to the specific calendar from which the button has been clicked.
+ * @param cal the calendar from which the button has been clicked.
+ */
+void MainWindow::eventShowTodoDialog(Calendar* cal) {
+    if(todoDialog == NULL) {
+        todoDialog = new TodoDialog(this);
+
+        // Pair the todoDialog to the calendar
+        todoDialog->setCal(cal);
+        todoDialog->setCalName(cal->displayName());
+
+        // Events that happen when todo is added (on button click)
+        connect(todoDialog, &TodoDialog::eventAddTodo, cal, &Calendar::handleAddTodo);
+        connect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleAddTodoFinished);
+        connect(cal, &Calendar::todoAddFinished, this, &MainWindow::handleAddTodoWithoutError);
+        connect(cal, &Calendar::todoRetrieveError, this, &MainWindow::handleAddTodoError);
+    }
+
+    todoDialog->setModal("true");
+    todoDialog->show();
+}
+
+/**
+ * @brief Handle the closing of an EventDialog: for an event added succesfully, unsuccesfully or when the modal is closed by the proper button
+ */
+void MainWindow::handleAddTodoFinished() {
+    todoDialog->hide();
+
+    /**
+     *  The alternative to disconnect is to DO NOT delete the dialog
+     *  but clearing the line texts inside of it
+     **/
+    disconnect(todoDialog, &TodoDialog::eventAddTodo, todoDialog->getCal(), &Calendar::handleAddTodo);
+    disconnect(todoDialog->getCal(), &Calendar::todoAddFinished, this, &MainWindow::handleAddTodoFinished);
+    disconnect(todoDialog->getCal(), &Calendar::todoAddFinished, this, &MainWindow::handleAddTodoWithoutError);
+    disconnect(todoDialog->getCal(), &Calendar::todoRetrieveError, this, &MainWindow::handleAddTodoError);
+
+    delete todoDialog;
+    eventDialog = NULL;
+}
+
+/**
+ * @brief Shows a popup message that event has not been successfully added
+ */
+void MainWindow::handleAddTodoError() {
+    handleAddTodoFinished();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText("Il To-Do NON è stato aggiunto correttamente");
+    msgBox.exec();
+}
+
+/**
+ * @brief Shows a popup message that event has been successfully added
+ */
+void MainWindow::handleAddTodoWithoutError() {
+    handleAddTodoFinished();
+    handleUpdateMainWindowWidgets();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setText("Il To-Do è stato aggiunto correttamente");
     msgBox.exec();
 }
 
@@ -169,6 +238,7 @@ void MainWindow::handleShowModifyEventDialog(Event* event) {
 
         // Events that happen when event is modified (on button click)
         connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
+        // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
 //        connect(eventDialog, &EventDialog::eventModifyEvent, cal, &Calendar::handleModifyEvent);
 //        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
 //        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
@@ -190,6 +260,59 @@ void MainWindow::handleCloseModifyEventDialog() {
     delete eventDialog;
     eventDialog = NULL;
 }
+
+/**
+ * @brief This function shows the eventDialog filled of event parameters ready to be modified
+ * @param event the event to be modified
+ */
+void MainWindow::handleShowModifyTodoDialog(Todo* todo) {
+    if(todoDialog == NULL) {
+        todoDialog = new TodoDialog(this);
+
+        QString calName;
+        client->calendarList();
+
+        // Search for calendar to which event is connected to
+        for(Calendar* cal : client->calendarList()) {
+            for(Todo* td : cal->todosList()) {
+                if(td->uid() == todo->uid()) {
+                    calName = cal->displayName();
+                }
+            }
+        }
+
+        // Pair the eventDialog to the event
+        todoDialog->setTodo(todo);
+        todoDialog->setCalName(calName);
+
+        // Prepare fields
+        todoDialog->setFields();
+
+        // Events that happen when event is modified (on button click)
+        connect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleCloseModifyTodoDialog);
+        // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
+//        connect(eventDialog, &EventDialog::eventModifyEvent, cal, &Calendar::handleModifyEvent);
+//        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
+//        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
+    }
+
+    todoDialog->setModal("true");
+    todoDialog->show();
+}
+
+void MainWindow::handleCloseModifyTodoDialog() {
+    todoDialog->hide();
+
+    /**
+     *  The alternative to disconnect is to DO NOT delete the dialog
+     *  but clearing the line texts inside of it
+     **/
+    disconnect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleCloseModifyTodoDialog);
+
+    delete todoDialog;
+    todoDialog = NULL;
+}
+
 
 /**
  * @brief Handle the update of the whole GUI: calendars, events and TODOs
@@ -226,11 +349,15 @@ void MainWindow::handleUpdateMainWindowWidgets() {
 
     /****** Starting GUI update based on TODOs available ******/
 
-    //TODO: Handle TODOs update
-//    QList <Todo*> todosList = client->getTodoByDate(ui->calendarWidget->selectedDate());
-//    int numberOfTodos = todosList.count();
-    printEmptyTodos();
+    QList <Todo*> todosList = client->getTodoByDate(ui->calendarWidget->selectedDate());
+    int numberOfTodos = todosList.count();
 
+    if(numberOfTodos == 0) {
+        printEmptyTodos();
+    } else {
+        // I'f i'm here there is at least one event
+        printTodosList(todosList);
+    }
     /****** End of GUI update based on TODOs available ******/
 }
 
@@ -307,6 +434,14 @@ void MainWindow::printCalendars() {
         connect(cal,&Calendar::showEventDialog,this,&MainWindow::eventShowEventDialog);
         addEventButton->setMaximumSize(90,40);
         thirdLine->addWidget(addEventButton);
+
+        //Add todo button
+        QPushButton* addTodoButton = new QPushButton("Nuovo ToDo", this);
+        // When "Add ToDo" button is pressed call the calendar's slot that will call a slot to show TodoDialog and refer to it
+        connect(addTodoButton, SIGNAL(clicked()), cal, SLOT(handleAddNewTodoPopUp()));
+        connect(cal,&Calendar::showTodoDialog,this,&MainWindow::eventShowTodoDialog);
+        addTodoButton->setMaximumSize(90,40);
+        thirdLine->addWidget(addTodoButton);
 
         //Remove calendar button
         QPushButton* removeButton = new QPushButton("Rimuovi Calendario", this);
@@ -424,4 +559,61 @@ void MainWindow::printEmptyTodos() {
     QWidget* calBox = new QWidget(ui->todoScrollArea);
     calBox->setLayout(firstLine);
     ui->todoScrollArea->setWidget(calBox);
+}
+
+void MainWindow::printTodosList(QList <Todo*> todosList) {
+    // Prepare the widget that will contain the list and its layout
+    QWidget* tdBoxes = new QWidget(ui->todoScrollArea);
+
+    QHBoxLayout* firstLine = new QHBoxLayout();
+    QLabel* defaultText = new QLabel(QString("Todo per il " + ui->calendarWidget->selectedDate().toString()));
+    defaultText->setStyleSheet("font-weight: bold;");
+    firstLine->addWidget(defaultText);
+
+    QVBoxLayout* fullBox = new QVBoxLayout();
+    fullBox->setAlignment(Qt::AlignTop);
+    fullBox->addLayout(firstLine);
+
+    for(int i =0; i< todosList.length(); i++) {
+        QHBoxLayout* theLine = new QHBoxLayout();
+        QPushButton* theText = new QPushButton(QString(todosList[i]->summary()));
+
+        QToolButton* editTodo = new QToolButton();
+        editTodo->setText("Modifica");
+        //editEvent->setIcon(QIcon::fromTheme("edit-copy"));
+        QToolButton* deleteTodo = new QToolButton();
+        //editEvent->setIcon(QIcon::fromTheme("edit-delete"));
+        deleteTodo->setText("Cancella");
+        QWidget* colourBox = new QWidget();
+
+        colourBox->setStyleSheet(QString( "background-color: " + todosList[i]->colour() + ";" ));
+        colourBox->setFixedSize(20, 20);
+
+        // Make it rounded
+        QPainterPath path;
+        path.addRoundedRect(colourBox->rect(), 10, 10);
+        QRegion mask = QRegion(path.toFillPolygon().toPolygon());
+        colourBox->setMask(mask);
+
+//        QPalette pal = QPalette();
+//        pal.setColor(QPalette::Window, Qt::black);
+//        fakeWidget->setAutoFillBackground(true);
+//        fakeWidget->setPalette(pal);
+//        fakeWidget->show();
+        theLine->addWidget(colourBox);
+        theLine->addWidget(theText);
+        theLine->addWidget(editTodo);
+        theLine->addWidget(deleteTodo);
+        fullBox->addLayout(theLine);
+
+        connect(theText, &QPushButton::clicked, todosList[i], &Todo::showTodo);
+
+        connect(editTodo, &QAbstractButton::clicked, todosList[i], &Todo::handleEditTodo);
+        connect(todosList[i], &Todo::editTodo, this, &MainWindow::handleShowModifyTodoDialog);
+
+        connect(deleteTodo, &QAbstractButton::clicked, todosList[i], &Todo::handleRemoveTodo);
+    }
+
+    tdBoxes->setLayout(fullBox);
+    ui->todoScrollArea->setWidget(tdBoxes);
 }
