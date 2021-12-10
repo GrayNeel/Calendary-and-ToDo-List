@@ -42,13 +42,14 @@ public:
 
 signals:
     void removeEvent(Event* event);
+    void editEvent(Event* event);
 public slots:
 
     void showEvent();
     void handleRemoveEvent();
+    void handleEditEvent();
 private slots:
 
-    void handleEditEvent();
 private:
     QString _uid;
     QString _filename;

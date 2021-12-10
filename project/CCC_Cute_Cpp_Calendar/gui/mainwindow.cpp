@@ -83,7 +83,7 @@ void MainWindow::handleCloseDialog() {
  */
 void MainWindow::eventShowEventDialog(Calendar* cal) {
     if(eventDialog == NULL) {
-        eventDialog = new EventDialog();
+        eventDialog = new EventDialog(this);
 
         // Pair the eventDialog to the calendar
         eventDialog->setCal(cal);
@@ -138,6 +138,57 @@ void MainWindow::handleAddEventWithoutError() {
     msgBox.setIcon(QMessageBox::Information);
     msgBox.setText("L'evento è stato aggiunto correttamente");
     msgBox.exec();
+}
+
+/**
+ * @brief This function shows the eventDialog filled of event parameters ready to be modified
+ * @param event the event to be modified
+ */
+void MainWindow::handleShowModifyEventDialog(Event* event) {
+    if(eventDialog == NULL) {
+        eventDialog = new EventDialog(this);
+
+        QString calName;
+        client->calendarList();
+
+        // Search for calendar to which event is connected to
+        for(Calendar* cal : client->calendarList()) {
+            for(Event* ev : cal->eventsList()) {
+                if(ev->uid() == event->uid()) {
+                    calName = cal->displayName();
+                }
+            }
+        }
+
+        // Pair the eventDialog to the event
+        eventDialog->setEvent(event);
+        eventDialog->setCalName(calName);
+
+        // Prepare fields
+        eventDialog->setFields();
+
+        // Events that happen when event is modified (on button click)
+        connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
+//        connect(eventDialog, &EventDialog::eventModifyEvent, cal, &Calendar::handleModifyEvent);
+//        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
+//        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
+    }
+
+    eventDialog->setModal("true");
+    eventDialog->show();
+}
+
+void MainWindow::handleCloseModifyEventDialog() {
+    eventDialog->hide();
+
+    /**
+     *  The alternative to disconnect is to DO NOT delete the dialog
+     *  but clearing the line texts inside of it
+     **/
+    disconnect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
+
+    delete eventDialog;
+    eventDialog = NULL;
 }
 
 /**
@@ -350,7 +401,10 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
         fullBox->addLayout(theLine);
 
         connect(theText, &QPushButton::clicked, eventsList[i], &Event::showEvent);
-        connect(editEvent, &QAbstractButton::clicked, eventsList[i], &Event::showEvent);
+
+        connect(editEvent, &QAbstractButton::clicked, eventsList[i], &Event::handleEditEvent);
+        connect(eventsList[i], &Event::editEvent, this, &MainWindow::handleShowModifyEventDialog);
+
         connect(deleteEvent, &QAbstractButton::clicked, eventsList[i], &Event::handleRemoveEvent);
     }
 

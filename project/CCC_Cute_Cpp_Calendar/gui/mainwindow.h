@@ -33,9 +33,11 @@ private slots:
     void handleAddEventFinished();
     void handleAddEventError();
     void handleAddEventWithoutError();
+    void handleShowModifyEventDialog(Event *event);
 
     void handleUpdateMainWindowWidgets();
 
+    void handleCloseModifyEventDialog();
 private:
     Ui::MainWindow *ui;
 

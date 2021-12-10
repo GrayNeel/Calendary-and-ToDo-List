@@ -161,8 +161,7 @@ void Event::handleRemoveEvent(){
     emit removeEvent(this);
 }
 
-//TODO
+
 void Event::handleEditEvent(){
-    // qDebug() << "Sono lo slot dentro event";
-    //emit removeEvent(this);
+    emit editEvent(this);
 }

@@ -142,3 +142,62 @@ void EventDialog::on_EventDialog_rejected()
     emit closeEventDialog();
 }
 
+Event *EventDialog::getEvent() const
+{
+    return event;
+}
+
+void EventDialog::setEvent(Event *newEvent)
+{
+    event = newEvent;
+}
+
+void EventDialog::setFields() {
+
+    ui->summaryLine->setText(event->summary());
+    ui->locationLine->setText(event->location());
+    ui->descriptionText->setText(event->description());
+    ui->calendarWidgetStart->setSelectedDate(event->startDateTime().date());
+    ui->calendarWidgetEnd->setSelectedDate(event->endDateTime().date());
+    ui->uidLine->setText(event->uid());
+
+    int startingHours = event->startDateTime().time().hour();
+    QString stH;
+    if(startingHours < 10) {
+        stH = "0" + QString::fromStdString(std::to_string(startingHours));
+    } else {
+        stH = QString::fromStdString(std::to_string(startingHours));
+    }
+
+    int startingMinutes = event->startDateTime().time().minute();
+    QString stM;
+    if(startingMinutes < 10) {
+        stM = "0" + QString::fromStdString(std::to_string(startingMinutes));
+    } else {
+        stM = QString::fromStdString(std::to_string(startingMinutes));
+    }
+
+    int endingHours = event->endDateTime().time().hour();
+    QString enH;
+    if(endingHours < 10) {
+        enH = "0" + QString::fromStdString(std::to_string(endingHours));
+    } else {
+        enH = QString::fromStdString(std::to_string(endingHours));
+    }
+
+
+    int endingMinutes = event->endDateTime().time().minute();
+    QString enM;
+    if(endingMinutes < 10) {
+        enM = "0" + QString::fromStdString(std::to_string(endingMinutes));
+    } else {
+        enM = QString::fromStdString(std::to_string(endingMinutes));
+    }
+
+    ui->startingHoursLine->setText(stH);
+    ui->startingMinutesLine->setText(stM);
+
+    ui->endingHoursLine->setText(enH);
+    ui->endingMinutesLine->setText(enM);
+}
+
