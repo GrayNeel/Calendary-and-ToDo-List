@@ -48,6 +48,7 @@ public slots:
     void handleRemoveEvent();
 private slots:
 
+    void handleEditEvent();
 private:
     QString _uid;
     QString _filename;

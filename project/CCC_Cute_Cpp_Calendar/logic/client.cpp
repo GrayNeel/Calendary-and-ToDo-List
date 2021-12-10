@@ -2,18 +2,17 @@
 
 Client::Client(QObject *parent) : QObject(parent)
 {
-    //connect(, eventAddCalendar, this, handleAddCalendar)
+
 }
 
 void Client::handleAddCalendar(QString username, QString password, QString url)
 {
-//    qDebug() << "handleAddCalendar:" + username + " " + password + " " + url;
-
     // Create in advance the calendar object. If there will be any error it will be removed.
     Calendar* cal = new Calendar(this);
+
     connect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     connect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
-    connect(cal, &Calendar::refreshEventVisualization, this, &Client::handleRefreshEventVisualization);
+    connect(cal, SIGNAL(refreshEventVisualization()), this->parent(), SLOT(handleUpdateMainWindowWidgets()));
 
     _calendarList.append(cal);
     cal->setUsername(username);
@@ -41,7 +40,7 @@ void Client::handleAddCalendarError(QString errorMessage) {
 
     disconnect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     disconnect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
-    disconnect(cal, &Calendar::refreshEventVisualization, this, &Client::handleRefreshEventVisualization);
+    disconnect(cal, SIGNAL(refreshEventVisualization()), this->parent(), SLOT(handleUpdateMainWindowWidgets()));
 
     delete cal;
 
@@ -59,8 +58,8 @@ void Client::handleAddCalendarFinished() {
     disconnect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     disconnect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
 
-    emit closeDialog(cal);
-    emit printEvent(cal->eventsList());
+    emit closeDialog();
+    emit updateMainWindow();
 }
 
 void Client::handleRemoveCalendarFromList(Calendar* cal){
@@ -90,10 +89,6 @@ QList<Event*> Client::getEventByDate(const QDate &date) {
     }
 
     return eventsList;
-}
-
-void Client::handleRefreshEventVisualization(){
-    emit refreshEventVisualization();
 }
 
 const QList<Calendar *> &Client::calendarList() const

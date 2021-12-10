@@ -160,3 +160,9 @@ void Event::handleRemoveEvent(){
     // qDebug() << "Sono lo slot dentro event";
     emit removeEvent(this);
 }
+
+//TODO
+void Event::handleEditEvent(){
+    // qDebug() << "Sono lo slot dentro event";
+    //emit removeEvent(this);
+}

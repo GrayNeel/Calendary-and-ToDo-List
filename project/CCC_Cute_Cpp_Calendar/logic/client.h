@@ -12,7 +12,6 @@
 #include <QDomDocument>
 #include "calendar.h"
 
-
 class Client : public QObject
 {
     Q_OBJECT
@@ -33,17 +32,15 @@ public slots:
     void handleAddEventError(QString errorMessage);
     void handleRemoveCalendarFromList(Calendar* cal);
 
-    void handleRefreshEventVisualization();
 signals:
     void requestSyncToken(void);
     void dialogErrorMessage(QString errorMessage);
-    void closeDialog(Calendar* cal);
+    void closeDialog();
 
     void eventDialogErrorMessage(QString errorMessage);
     void closeEventDialog(Event* event);
 
     void printEvent(QList<Event*> eventList);
-    void refreshEventVisualization();
 
     void updateMainWindow();
 

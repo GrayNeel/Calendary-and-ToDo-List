@@ -25,12 +25,10 @@ public:
 private slots:
     void on_actionApri_calendario_triggered();
     void on_calendarWidget_clicked(const QDate &date);
-    void on_calendarWidget_selectionChanged();
 
+    /* Custom Slots */
     void handleCloseDialog();
-    void handleAddCalendarFinished(Calendar* cal);
 
-    void handleRemoveCalendarBox(Calendar* cal);
     void eventShowEventDialog(Calendar* cal);
     void handleAddEventFinished();
     void handleAddEventError();
@@ -46,13 +44,12 @@ private:
 
     Client* client;
 
-    QWidget* _calBoxes;
-    QVBoxLayout* _calBoxesLayout;
-
+    /* Private functions for GUI updates */
     void printEmptyCalendars();
     void printCalendars();
     void printEmptyEvents();
     void printEventsList(QList <Event*> eventsList);
+    void printEmptyTodos();
 
 };
 #endif // MAINWINDOW_H

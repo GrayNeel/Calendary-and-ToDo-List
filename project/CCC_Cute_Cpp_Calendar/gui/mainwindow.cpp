@@ -8,25 +8,20 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // Create the client that will handle the calendar list
-    client = new Client();
+    client = new Client(this);
+    // Create a connection that will help client communicate to GUI that there is an update
+    connect (client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
     connect (client, &Client::updateMainWindow, this, &MainWindow::handleUpdateMainWindowWidgets);
 
     dialog = NULL;
     eventDialog = NULL;
 
-    // This handle the updates on GUI of calendars available
-    // TODO: check if it is possible to remove them from the variables of MainWindow
-    _calBoxesLayout = new QVBoxLayout();
-    _calBoxesLayout->setAlignment(Qt::AlignTop);
-    _calBoxes = new QWidget(ui->scrollArea);
-
+    // Set initial state of GUI
     handleUpdateMainWindowWidgets();
 }
 
 MainWindow::~MainWindow()
 {
-    delete _calBoxesLayout;
-    delete _calBoxes;
     delete ui;
     if(dialog != NULL)
         delete dialog;
@@ -35,24 +30,37 @@ MainWindow::~MainWindow()
     delete client;
 }
 
+/** Actions from GUI objects **/
 
 void MainWindow::on_actionApri_calendario_triggered()
 {
     if(dialog == NULL) {
-        dialog = new Dialog();
+        dialog = new Dialog(this);
 
+        // Events that happen when calendar is retrieved from server (on button click)
         connect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
         connect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
-        connect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
-        connect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);/*
-        connect(client, &Client::printEvent, this, &MainWindow::handlePrintEvent);*/
-        connect(client, &Client::refreshEventVisualization, this, &MainWindow::handleUpdateMainWindowWidgets);
+
+        // Events that happen when add calendar dialog is being closed
+        connect(dialog, &Dialog::closeDialog, this, &MainWindow::handleUpdateMainWindowWidgets);
+        connect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
     }
 
     dialog->setModal("true");
     dialog->show();
 }
 
+void MainWindow::on_calendarWidget_clicked(const QDate &date)
+{
+    // Update events for that date (the date is retrieved inside the function)
+    handleUpdateMainWindowWidgets();
+}
+
+/** Custom Slots **/
+
+/**
+ * @brief Handles the close of the Add Calendar Dialog and its deletion
+ */
 void MainWindow::handleCloseDialog() {
     dialog->hide();
 
@@ -62,31 +70,17 @@ void MainWindow::handleCloseDialog() {
      **/
     disconnect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
     disconnect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
-    disconnect(client, &Client::closeDialog, this, &MainWindow::handleAddCalendarFinished);
+    disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleUpdateMainWindowWidgets);
     disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
-
-    //disconnect(client, &Client::printEvent, this, &MainWindow::handlePrintEvent);
 
     delete dialog;
     dialog = NULL;
 }
 
-void MainWindow::handleAddCalendarFinished(Calendar* cal) {
-    handleCloseDialog();
-    handleUpdateMainWindowWidgets();
-}
-
-
-void MainWindow::on_calendarWidget_clicked(const QDate &date)
-{ 
-    handleUpdateMainWindowWidgets();
-}
-
-
-void MainWindow::handleRemoveCalendarBox(Calendar* cal) {
-    handleUpdateMainWindowWidgets();
-}
-
+/**
+ * @brief Show the Event Dialog which is paired to the specific calendar from which the button has been clicked.
+ * @param cal the calendar from which the button has been clicked.
+ */
 void MainWindow::eventShowEventDialog(Calendar* cal) {
     if(eventDialog == NULL) {
         eventDialog = new EventDialog();
@@ -95,8 +89,7 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
         eventDialog->setCal(cal);
         eventDialog->setCalName(cal->displayName());
 
-//        connect(client, &Client::eventDialogErrorMessage, eventDialog, &EventDialog::handleEventResponse);
-
+        // Events that happen when event is added (on button click)
         connect(eventDialog, &EventDialog::eventAddEvent, cal, &Calendar::handleAddEvent);
         connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleAddEventFinished);
         connect(cal, &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
@@ -106,8 +99,8 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
     eventDialog->setModal("true");
     eventDialog->show();
 }
+
 /**
- *
  * @brief Handle the closing of an EventDialog: for an event added succesfully, unsuccesfully or when the modal is closed by the proper button
  */
 void MainWindow::handleAddEventFinished() {
@@ -124,6 +117,9 @@ void MainWindow::handleAddEventFinished() {
     eventDialog = NULL;
 }
 
+/**
+ * @brief Shows a popup message that event has not been successfully added
+ */
 void MainWindow::handleAddEventError() {
     handleAddEventFinished();
     QMessageBox msgBox;
@@ -132,20 +128,21 @@ void MainWindow::handleAddEventError() {
     msgBox.exec();
 }
 
+/**
+ * @brief Shows a popup message that event has been successfully added
+ */
 void MainWindow::handleAddEventWithoutError() {
     handleAddEventFinished();
+    handleUpdateMainWindowWidgets();
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Information);
     msgBox.setText("L'evento è stato aggiunto correttamente");
     msgBox.exec();
 }
 
-void MainWindow::on_calendarWidget_selectionChanged()
-{
-
-}
-
-
+/**
+ * @brief Handle the update of the whole GUI: calendars, events and TODOs
+ */
 void MainWindow::handleUpdateMainWindowWidgets() {
     /****** Starting GUI update based on calendars available ******/
 
@@ -154,6 +151,7 @@ void MainWindow::handleUpdateMainWindowWidgets() {
     if(numberOfCalendars == 0) {
         printEmptyCalendars();
         printEmptyEvents();
+        printEmptyTodos();
         return;
     }
 
@@ -166,18 +164,26 @@ void MainWindow::handleUpdateMainWindowWidgets() {
     QList <Event*> eventsList = client->getEventByDate(ui->calendarWidget->selectedDate());
     int numberOfEvents = eventsList.count();
 
-
-
     if(numberOfEvents == 0) {
         printEmptyEvents();
-        return;
+    } else {
+        // I'f i'm here there is at least one event
+        printEventsList(eventsList);
     }
 
-    // I'f i'm here there is at least one event
-    printEventsList(eventsList);
-
     /****** End of GUI update based on events available ******/
+
+    /****** Starting GUI update based on TODOs available ******/
+
+    //TODO: Handle TODOs update
+//    QList <Todo*> todosList = client->getTodoByDate(ui->calendarWidget->selectedDate());
+//    int numberOfTodos = todosList.count();
+    printEmptyTodos();
+
+    /****** End of GUI update based on TODOs available ******/
 }
+
+/** Private functions for GUI update **/
 
 void MainWindow::printEmptyCalendars() {
     // Show message on screen that no calendars are available
@@ -301,7 +307,8 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
     QWidget* evBoxes = new QWidget(ui->eventScrollArea);
 
     QHBoxLayout* firstLine = new QHBoxLayout();
-    QLabel* defaultText = new QLabel(QString("Sono presenti: " + QString::number(eventsList.length())+" eventi per la data selezionata"));
+    QLabel* defaultText = new QLabel(QString("Eventi per il " + ui->calendarWidget->selectedDate().toString()));
+    defaultText->setStyleSheet("font-weight: bold;");
     firstLine->addWidget(defaultText);
 
     QVBoxLayout* fullBox = new QVBoxLayout();
@@ -349,4 +356,18 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
 
     evBoxes->setLayout(fullBox);
     ui->eventScrollArea->setWidget(evBoxes);
+}
+
+void MainWindow::printEmptyTodos() {
+    // Show message on screen that no todos are available
+    QVBoxLayout* firstLine = new QVBoxLayout();
+    firstLine->setAlignment(Qt::AlignVCenter);
+
+    QLabel* firstLabel = new QLabel("Nessun todo disponibile.");
+    firstLabel->setStyleSheet("font-weight: bold;");
+    firstLine->addWidget(firstLabel);
+
+    QWidget* calBox = new QWidget(ui->todoScrollArea);
+    calBox->setLayout(firstLine);
+    ui->todoScrollArea->setWidget(calBox);
 }
