@@ -553,7 +553,7 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
             }
         }
 
-        time->setStyleSheet("font-weight: italic;");
+        time->setStyleSheet("font-style: italic;");
 
         secondLine->addWidget(time);
 
