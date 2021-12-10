@@ -498,22 +498,15 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
     defaultText->setStyleSheet("font-weight: bold;");
     firstLine->addWidget(defaultText);
 
-    QVBoxLayout* fullBox = new QVBoxLayout();
-    fullBox->setAlignment(Qt::AlignTop);
-    fullBox->addLayout(firstLine);
+    QVBoxLayout* fullBoxes = new QVBoxLayout();
+    fullBoxes->setAlignment(Qt::AlignTop);
+    fullBoxes->addLayout(firstLine);
 
     for(int i =0; i< eventsList.length(); i++) {
-        QHBoxLayout* theLine = new QHBoxLayout();
-        QPushButton* theText = new QPushButton(QString(eventsList[i]->summary()));
-        //I can't make clickable a QLabel... so I use a QPushButton
-        //QLabel* theText = new QLabel(QString(eventList[i]->summary() +" "+ eventList[i]->location()));
-        //theText->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-        QToolButton* editEvent = new QToolButton();
-        editEvent->setText("Modifica");
-        //editEvent->setIcon(QIcon::fromTheme("edit-copy"));
-        QToolButton* deleteEvent = new QToolButton();
-        //editEvent->setIcon(QIcon::fromTheme("edit-delete"));
-        deleteEvent->setText("Cancella");
+        //First line contains color + name
+        QHBoxLayout* firstLine = new QHBoxLayout();
+
+        // Creating colour box
         QWidget* colourBox = new QWidget();
 
         colourBox->setStyleSheet(QString( "background-color: " + eventsList[i]->colour() + ";" ));
@@ -525,18 +518,64 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
         QRegion mask = QRegion(path.toFillPolygon().toPolygon());
         colourBox->setMask(mask);
 
-//        QPalette pal = QPalette();
-//        pal.setColor(QPalette::Window, Qt::black);
-//        fakeWidget->setAutoFillBackground(true);
-//        fakeWidget->setPalette(pal);
-//        fakeWidget->show();
-        theLine->addWidget(colourBox);
-        theLine->addWidget(theText);
-        theLine->addWidget(editEvent);
-        theLine->addWidget(deleteEvent);
-        fullBox->addLayout(theLine);
+        // Creating event name
+        QLabel* eventName = new QLabel(QString(eventsList[i]->summary()));
+        eventName->setStyleSheet("font-weight: bold;");
 
-        connect(theText, &QPushButton::clicked, eventsList[i], &Event::showEvent);
+        firstLine->addWidget(colourBox);
+        firstLine->addWidget(eventName);
+
+        //Second line contains starting - ending time
+        QHBoxLayout* secondLine = new QHBoxLayout();
+
+        QDateTime startDateTime = eventsList[i]->startDateTime();
+        QDateTime endDateTime = eventsList[i]->endDateTime();
+
+        QLabel* time;
+
+        // If starting date and ending date is equal print both starting and ending time
+        if(startDateTime.date() == endDateTime.date()) {
+            time = new QLabel(QString(startDateTime.time().toString("hh:mm") + " - " + endDateTime.time().toString("hh:mm")));
+            time->setStyleSheet("font-weight: italic;");
+        } else {
+            if (ui->calendarWidget->selectedDate() == startDateTime.date())
+                // If selectedDate == startDateTime show only starting time
+                time = new QLabel(QString(startDateTime.time().toString("hh:mm") + " - "));
+            else if (ui->calendarWidget->selectedDate() == endDateTime.date())
+                // If selectedDate == endDateTime show only ending time
+                time = new QLabel(QString(" - " + endDateTime.time().toString("hh:mm")));
+            else if (ui->calendarWidget->selectedDate() > startDateTime.date() && ui->calendarWidget->selectedDate() < endDateTime.date()) {
+                // If selectedDate is between starting and ending date show only an alert that event lasts all day
+                time = new QLabel(QString("Tutto il giorno"));
+            } else {
+                // Should not happen
+                time = new QLabel(QString("Invalid date"));
+            }
+        }
+
+        time->setStyleSheet("font-weight: italic;");
+
+        secondLine->addWidget(time);
+
+        QHBoxLayout* thirdLine = new QHBoxLayout();
+
+        QPushButton* infoEvent = new QPushButton(QString("Info"));
+        QPushButton* editEvent = new QPushButton(QString("Modifica"));
+        QPushButton* deleteEvent = new QPushButton(QString("Cancella"));
+
+        thirdLine->addWidget(infoEvent);
+        thirdLine->addWidget(editEvent);
+        thirdLine->addWidget(deleteEvent);
+
+        QVBoxLayout* fullBox = new QVBoxLayout();
+
+        fullBox->addLayout(firstLine);
+        fullBox->addLayout(secondLine);
+        fullBox->addLayout(thirdLine);
+
+        fullBoxes->addLayout(fullBox);
+
+        connect(infoEvent, &QPushButton::clicked, eventsList[i], &Event::showEvent);
 
         connect(editEvent, &QAbstractButton::clicked, eventsList[i], &Event::handleEditEvent);
         connect(eventsList[i], &Event::editEvent, this, &MainWindow::handleShowModifyEventDialog);
@@ -544,7 +583,7 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
         connect(deleteEvent, &QAbstractButton::clicked, eventsList[i], &Event::handleRemoveEvent);
     }
 
-    evBoxes->setLayout(fullBox);
+    evBoxes->setLayout(fullBoxes);
     ui->eventScrollArea->setWidget(evBoxes);
 }
 

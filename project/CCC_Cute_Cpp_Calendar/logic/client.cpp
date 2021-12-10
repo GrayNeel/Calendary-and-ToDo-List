@@ -81,8 +81,8 @@ QList<Event*> Client::getEventByDate(const QDate &date) {
 
     for (Calendar* cal : _calendarList) {
         for (Event* ev : cal->eventsList()) {
-            qDebug() << ev->startDateTime().toString();
-            if(ev->startDateTime().date() == date) {
+//            qDebug() << ev->startDateTime().toString();
+            if(ev->startDateTime().date() <= date && ev->endDateTime().date() >= date) {
                 eventsList.append(ev);
             }
         }
