@@ -98,8 +98,16 @@ void MainWindow::handlePrintEvent(QList<Event*> eventList){
         //editEvent->setIcon(QIcon::fromTheme("edit-delete"));
         deleteEvent->setText("Cancella");
         QWidget* colourBox = new QWidget();
+
         colourBox->setStyleSheet(QString( "background-color: " + eventList[i]->colour() + ";" ));
-        colourBox->setFixedSize(22, 22);
+        colourBox->setFixedSize(20, 20);
+
+        // Make it rounded
+        QPainterPath path;
+        path.addRoundedRect(colourBox->rect(), 10, 10);
+        QRegion mask = QRegion(path.toFillPolygon().toPolygon());
+        colourBox->setMask(mask);
+
 //        QPalette pal = QPalette();
 //        pal.setColor(QPalette::Window, Qt::black);
 //        fakeWidget->setAutoFillBackground(true);
@@ -142,9 +150,27 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
 
     // The first line will show the name of the calendar
     QHBoxLayout* firstLine = new QHBoxLayout();
+
+    //Box with the colour of the calendar
+    QWidget* colourBox = new QWidget();
+    colourBox->setStyleSheet(QString( "background-color: " + cal->colour() + ";" ));
+    colourBox->setFixedSize(20, 20);
+
+    QPainterPath path;
+    path.addRoundedRect(colourBox->rect(), 10, 10);
+    QRegion mask = QRegion(path.toFillPolygon().toPolygon());
+    colourBox->setMask(mask);
+
+    firstLine->addWidget(colourBox);
+
     QLabel* name = new QLabel(cal->displayName());
     name->setStyleSheet("font-weight: bold;");
     firstLine->addWidget(name);
+
+
+
+    firstLine->setAlignment(Qt::AlignLeft);
+
 
     // The second line will show the URL of the calendar
     QHBoxLayout* secondLine = new QHBoxLayout();
@@ -175,12 +201,6 @@ void MainWindow::handleAddCalendarFinished(Calendar* cal) {
 
     removeButton->setMaximumSize(140,40);
     thirdLine->addWidget(removeButton);
-
-    //Box with the colour of the calendar
-    QWidget* colourBox = new QWidget();
-    colourBox->setStyleSheet(QString( "background-color: " + cal->colour() + ";" ));
-    colourBox->setFixedSize(22, 22);
-    thirdLine->addWidget(colourBox);
 
     thirdLine->setAlignment(Qt::AlignLeft);
 
