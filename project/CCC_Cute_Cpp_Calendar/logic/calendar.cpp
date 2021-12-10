@@ -330,7 +330,6 @@ void Calendar::parseCalendarData(QString entity, QString uri, QString eTag){
 }
 
 void Calendar::handleRemoveCalendar(){
-    // qDebug() << "Sono lo slot dentro calendar";
     emit removeCalendar(this);
 }
 

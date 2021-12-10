@@ -35,10 +35,8 @@ private slots:
     void handleAddEventFinished();
     void handleAddEventError();
     void handleAddEventWithoutError();
-    void handlePrintEvent(QList<Event*> eventList);
 
-    void handleRefreshEventScrollArea();
-
+    void handleUpdateMainWindowWidgets();
 
 private:
     Ui::MainWindow *ui;
@@ -50,5 +48,11 @@ private:
 
     QWidget* _calBoxes;
     QVBoxLayout* _calBoxesLayout;
+
+    void printEmptyCalendars();
+    void printCalendars();
+    void printEmptyEvents();
+    void printEventsList(QList <Event*> eventsList);
+
 };
 #endif // MAINWINDOW_H

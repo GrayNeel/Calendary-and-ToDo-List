@@ -66,6 +66,7 @@ void Client::handleAddCalendarFinished() {
 void Client::handleRemoveCalendarFromList(Calendar* cal){
     _calendarList.removeOne(cal);
     delete cal;
+    emit updateMainWindow();
     // qDebug() << "Sono lo slot dentro client";
 }
 
@@ -93,4 +94,9 @@ QList<Event*> Client::getEventByDate(const QDate &date) {
 
 void Client::handleRefreshEventVisualization(){
     emit refreshEventVisualization();
+}
+
+const QList<Calendar *> &Client::calendarList() const
+{
+    return _calendarList;
 }

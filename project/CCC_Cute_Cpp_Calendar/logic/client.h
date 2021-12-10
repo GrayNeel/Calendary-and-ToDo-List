@@ -24,6 +24,8 @@ public:
 
     void setCalendarList(const QList<Calendar *> &newCalendarList);
     QList<Event*> getEventByDate(const QDate &date);
+    const QList<Calendar *> &calendarList() const;
+
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
     void handleAddCalendarError(QString errorMessage);
@@ -42,6 +44,8 @@ signals:
 
     void printEvent(QList<Event*> eventList);
     void refreshEventVisualization();
+
+    void updateMainWindow();
 
 private:
     QList<Calendar*> _calendarList;
