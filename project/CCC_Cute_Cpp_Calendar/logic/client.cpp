@@ -7,6 +7,17 @@ Client::Client(QObject *parent) : QObject(parent)
 
 void Client::handleAddCalendar(QString username, QString password, QString url)
 {
+    // Adjust link
+    if(url.back() != QChar('/')) {
+        url = url.append('/');
+    }
+
+    for (Calendar *cal : _calendarList) {
+        if(url == cal->url()) {
+            emit dialogErrorMessage("Il calendario richiesto è già stato inserito.");
+            return;
+        }
+    }
     // Create in advance the calendar object. If there will be any error it will be removed.
     Calendar* cal = new Calendar(this);
 
@@ -17,18 +28,13 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
     _calendarList.append(cal);
     cal->setUsername(username);
     cal->setPassword(password);
+    cal->setUrl(url);
 
     //simple assigning colour property from a list of possible colour
     QString first = _colourList.first();
     cal->setColour(first);
     _colourList.removeFirst();
     _colourList.append(first);
-
-    if(url.back() != QChar('/')) {
-        cal->setUrl(url.append('/'));
-    }else{
-        cal->setUrl(url);
-    }
 
     emit requestSyncToken();
 }

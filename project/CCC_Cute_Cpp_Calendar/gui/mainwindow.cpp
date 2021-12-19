@@ -17,7 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     eventDialog = NULL;
     todoDialog = NULL;
 
-    // Set initial state of GUI
+
+    // Set initial state of GUI    
     handleUpdateMainWindowWidgets();
 }
 
@@ -505,7 +506,6 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
     for(int i =0; i< eventsList.length(); i++) {
         //First line contains color + name
         QHBoxLayout* firstLine = new QHBoxLayout();
-
         // Creating colour box
         QWidget* colourBox = new QWidget();
 
@@ -558,7 +558,7 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
         secondLine->addWidget(time);
 
         QHBoxLayout* thirdLine = new QHBoxLayout();
-
+        thirdLine->setAlignment(Qt::AlignLeft);
         QPushButton* infoEvent = new QPushButton(QString("Info"));
         QPushButton* editEvent = new QPushButton(QString("Modifica"));
         QPushButton* deleteEvent = new QPushButton(QString("Cancella"));
