@@ -396,7 +396,7 @@ void Calendar::handleAddEvent(QString summary, QString location, QString descrip
 }
 
 void Calendar::handleModifyEvent(QString oldUid, QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
-    qDebug() << "Voglio modificare";
+    qDebug() << "Voglio modificare evento";
     Event* oldEvent;
     for(Event* ev : _eventsList) {
         if(ev->uid() == oldUid) {
@@ -669,8 +669,69 @@ void Calendar::handleAddTodo(QString summary, QDateTime dueDateTime) {
     APIAddTodo(newTodo);
 }
 
-void Calendar::handleModifyTodo(QString summary, QDateTime dueDateTime) {
+void Calendar::handleModifyTodo(QString oldUid, QString summary, QDateTime dueDateTime) {
     qDebug() << "Voglio modificare un todo";
+    Todo* oldTodo;
+    for(Todo* td : _todosList) {
+        if(td->uid() == oldUid) {
+            oldTodo = td;
+            break;
+        }
+    }
+    //Se l'update andrà a buon fine sul server rimuoverò/aggiornerò anche in locale
+    //oppure
+    //Se l'update non andrà a buon fine (TODO) cancellare la risorsa e fare l'update generale
+    Todo* newTodo = new Todo(QString(oldUid), QString(""), summary, dueDateTime, _colour);
+    QString oldEtag = oldTodo->etag();
+    _todosList.removeOne(oldTodo);
+    _todosList.append(newTodo);
+    APIUpdateTodo(newTodo, oldEtag);
+}
+/**
+ *
+ * @brief This API update a todo (a VCalendar Object) in a specific calendar
+ */
+void Calendar::APIUpdateTodo(Todo* todo, QString etag) {
+    // https://datatracker.ietf.org/doc/html/rfc4791#section-5.3.2
+    QNetworkRequest request;
+
+    // Building the header of a PUT request to push a VCalendar Object for ONE VEVENT
+
+    request.setUrl(QUrl(_url + todo->filename()));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    //"The "If-Match: etag" request header ensures that the client will not inadvertently overwrite a resource updated from someone else
+    //This property allow to work with asynchronously shared access to the resource.
+    request.setRawHeader("If-Match", QByteArray(etag.toLatin1()));
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+
+    // Building the Body
+    QString requestString = "BEGIN:VCALENDAR\r\n"
+                            "VERSION:2.0\r\n"
+                            "BEGIN:VTODO\r\n"
+                            "UID:" + todo->uid() + "\r\n"
+                            "SUMMARY:" + todo->summary() + "\r\n"
+                            "DUE:" + todo->dueDateTime().toString("yyyyMMddTHHmmss") + "Z\r\n"
+                            "END:VTODO\r\nEND:VCALENDAR";
+
+    QBuffer* buffer = new QBuffer();
+    buffer->open(QIODevice::ReadWrite);
+
+    int bufferSize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+
+    QByteArray contentLength;
+    contentLength.append(QString::number(bufferSize).toStdString());
+
+    request.setRawHeader("Content-Length", contentLength);
+
+    //No custom request, just a put
+    _reply = _manager->put(request, buffer);
+
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVTodoFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
 
 /**
@@ -725,6 +786,7 @@ void Calendar::handleAddingVTodoFinished(){
     //QUrl resourceUri = _reply->url();
     QUrl resourceUrl = _reply->request().url();
 
+    //TODO gestire caso in cui non c'era un etag per quella update e quindi bisogna refreshare il calendario e abortire l'operazione
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Todo aggiunto correttamente";
         //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
@@ -732,6 +794,9 @@ void Calendar::handleAddingVTodoFinished(){
         emit todoAddFinished();
         emit todoModifyFinished();
     } else {
+        //        //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
+        //        if(_statusCode == 412) //412 Precondition Failed
+        //            emit signalToRefreshLocalEvents;
         qDebug() << "Todo non aggiunto. Errore: " << _statusCode;
         _todosList.removeLast();
         emit todoRetrieveError();

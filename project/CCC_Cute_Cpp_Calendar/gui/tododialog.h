@@ -32,7 +32,7 @@ public:
 
 signals:
     void eventAddTodo(QString summary, QDateTime dueDateTime);
-    void eventModifyTodo(QString summary, QDateTime dueDateTime);
+    void eventModifyTodo(QString oldUid, QString summary, QDateTime dueDateTime);
     void closeTodoDialog();
 
 private slots:

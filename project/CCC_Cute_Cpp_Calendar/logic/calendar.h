@@ -57,7 +57,7 @@ public slots:
     void handleAddTodo(QString summary, QDateTime dueDateTime);
 
     void handleModifyEvent(QString oldUid, QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
-    void handleModifyTodo(QString summary, QDateTime dueDateTime);
+    void handleModifyTodo(QString oldUid, QString summary, QDateTime dueDateTime);
 
     void deleteEvent(Event *event);
     void deleteTodo(Todo *todo);
@@ -84,6 +84,7 @@ private slots:
     void handleAddingVTodoFinished();
 
     void APIUpdateEvent(Event* event, QString oldEtag);
+    void APIUpdateTodo(Todo* todo, QString oldEtag);
 private:
     QString _username;
     QString _password;

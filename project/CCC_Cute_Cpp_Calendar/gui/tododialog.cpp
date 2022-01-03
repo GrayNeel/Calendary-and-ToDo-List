@@ -135,7 +135,7 @@ void TodoDialog::on_confirmButton_clicked()
     // If this line is reached, validation went well. No response to show.
     handleTodoResponse("");
     if(updating)
-        emit eventModifyTodo(summary, startDateTime);
+        emit eventModifyTodo(todo->uid(), summary, startDateTime);
     else
         emit eventAddTodo(summary, startDateTime);
 }
