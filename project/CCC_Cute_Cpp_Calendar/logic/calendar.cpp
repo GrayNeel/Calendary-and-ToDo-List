@@ -594,6 +594,9 @@ void Calendar::handleAddingVEventFinished(){
         emit eventModifyFinished();
 
     } else {
+//        //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
+//        if(_statusCode == 412) //412 Precondition Failed
+//            emit signalToRefreshLocalEvents;
         qDebug() << "Evento non aggiunto/aggiornato. Errore: " << _statusCode;
         _eventsList.removeLast();
         emit eventRetrieveError();

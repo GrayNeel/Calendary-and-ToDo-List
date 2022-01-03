@@ -247,17 +247,16 @@ void MainWindow::handleShowInfoEventDialog(Event *event)
 
         // Events that happen when event is modified (on button click)
         connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
-    }
 
-    QHBoxLayout *hbox = eventDialog->findChild<QVBoxLayout*>("_2")->findChild<QHBoxLayout*>("horizontalLayout");
-    //QPushButton* w = hbox->findChild<QPushButton*>(QString("abortButton"));
-    //w->setText("Ciao");
-    hbox->itemAt(1)->widget()->setVisible(false);
-    //hbox->itemAt(1)->widget()->setText("Ciao");
-    QPushButton* editButton = new QPushButton("Modifica");
-    //connect
-    connect(editButton, &QPushButton::clicked, this, &MainWindow::handleShowModifyEventDialog);
-    hbox->insertWidget(3, editButton);
+
+        QHBoxLayout *hbox = eventDialog->findChild<QVBoxLayout*>("_2")->findChild<QHBoxLayout*>("horizontalLayout");
+
+        QPushButton* confirm = static_cast<QPushButton*> (hbox->itemAt(1)->widget());
+        confirm->setDisabled(true);
+        QPushButton* editButton = new QPushButton("Modifica");
+        connect(editButton, &QPushButton::clicked, this, &MainWindow::handleShowModifyEventDialog);
+        hbox->insertWidget(3, editButton);
+    }
 
     eventDialog->setModal("true");
     eventDialog->show();
@@ -286,13 +285,12 @@ void MainWindow::handleShowModifyEventDialog() {
         //connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
 
     QHBoxLayout *hbox = eventDialog->findChild<QVBoxLayout*>("_2")->findChild<QHBoxLayout*>("horizontalLayout");
-    //Rendo di nuovo visibile pulsante "Conferma"
-    hbox->itemAt(1)->widget()->setVisible(true);
-    //connect(editButton, SIGNAL(clicked()), this, SLOT(handleModifyEvent()));
-    //Rimuovo pulsante "Modifica"
-    hbox->itemAt(3)->widget()->setVisible(false);
-    //hbox->removeItem(hbox->itemAt(3));
-    //hbox->takeAt(3);
+    //Rendo di nuovo cliccabile pulsante "Conferma"
+    QPushButton* confirm = static_cast<QPushButton*> (hbox->itemAt(1)->widget());
+    confirm->setDisabled(false);
+    //Disattivo pulsante "Modifica"
+    QPushButton* edit = static_cast<QPushButton*> (hbox->itemAt(3)->widget());
+    edit->setDisabled(true);
 }
 
 /**
@@ -373,18 +371,15 @@ void MainWindow::handleShowInfoTodoDialog(Todo* todo) {
 
         // Events that happen when event is modified (on button click)
         connect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleCloseModifyTodoDialog);
+
+        QHBoxLayout *hbox = todoDialog->findChild<QVBoxLayout*>("verticalLayout")->findChild<QVBoxLayout*>("verticalLayout_2")->findChild<QHBoxLayout*>("horizontalLayout_5");
+        QPushButton* confirm = static_cast<QPushButton*> (hbox->itemAt(1)->widget());
+        confirm->setDisabled(true);
+        QPushButton* editButton = new QPushButton("Modifica");
+        connect(editButton, &QPushButton::clicked, this, &MainWindow::handleShowModifyTodoDialog);
+        hbox->insertWidget(3, editButton);
     }
 
-
-    QHBoxLayout *hbox = todoDialog->findChild<QVBoxLayout*>("verticalLayout")->findChild<QVBoxLayout*>("verticalLayout_2")->findChild<QHBoxLayout*>("horizontalLayout_5");
-    //QPushButton* w = hbox->findChild<QPushButton*>(QString("abortButton"));
-    //w->setText("Ciao");
-    hbox->itemAt(1)->widget()->setVisible(false);
-    //hbox->itemAt(1)->widget()->setText("Ciao");
-    QPushButton* editButton = new QPushButton("Modifica");
-    //connect
-    connect(editButton, &QPushButton::clicked, this, &MainWindow::handleShowModifyTodoDialog);
-    hbox->insertWidget(3, editButton);
 
     todoDialog->setModal("true");
     todoDialog->show();
@@ -410,13 +405,12 @@ void MainWindow::handleShowModifyTodoDialog() {
 
 
         QHBoxLayout *hbox = todoDialog->findChild<QVBoxLayout*>("verticalLayout")->findChild<QVBoxLayout*>("verticalLayout_2")->findChild<QHBoxLayout*>("horizontalLayout_5");
-        //Rendo di nuovo visibile pulsante "Conferma"
-        hbox->itemAt(1)->widget()->setVisible(true);
-        //connect(editButton, SIGNAL(clicked()), this, SLOT(handleModifyEvent()));
+        //Rendo di nuovo cliccanile pulsante "Conferma"
+        QPushButton* confirm = static_cast<QPushButton*> (hbox->itemAt(1)->widget());
+        confirm->setDisabled(false);
         //Rimuovo pulsante "Modifica"
-        hbox->itemAt(3)->widget()->setVisible(false);
-        //hbox->removeItem(hbox->itemAt(3));
-        //hbox->takeAt(3);
+        QPushButton* edit = static_cast<QPushButton*> (hbox->itemAt(3)->widget());
+        edit->setDisabled(true);
 }
 
 void MainWindow::handleCloseModifyTodoDialog() {
