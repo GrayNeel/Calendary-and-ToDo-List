@@ -98,6 +98,8 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
         connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
     }
 
+    eventDialog->setUpdating(false);
+
     eventDialog->setModal("true");
     eventDialog->show();
 }
@@ -211,15 +213,14 @@ void MainWindow::handleAddTodoWithoutError() {
     msgBox.exec();
 }
 
-/**
- * @brief This function shows the eventDialog filled of event parameters ready to be modified
- * @param event the event to be modified
- */
-void MainWindow::handleShowModifyEventDialog(Event* event) {
+
+void MainWindow::handleShowInfoEventDialog(Event *event)
+{
     if(eventDialog == NULL) {
         eventDialog = new EventDialog(this);
 
         QString calName;
+        Calendar* calToPair;
         client->calendarList();
 
         // Search for calendar to which event is connected to
@@ -227,28 +228,120 @@ void MainWindow::handleShowModifyEventDialog(Event* event) {
             for(Event* ev : cal->eventsList()) {
                 if(ev->uid() == event->uid()) {
                     calName = cal->displayName();
+                    calToPair = cal;
+                    break;
                 }
             }
         }
 
         // Pair the eventDialog to the event
         eventDialog->setEvent(event);
+        eventDialog->setCal(calToPair);
         eventDialog->setCalName(calName);
 
         // Prepare fields
         eventDialog->setFields();
+        eventDialog->disableFields(true);
+
+        // Events that happen when event is modified (on button click)
+        connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
+    }
+
+    QHBoxLayout *hbox = eventDialog->findChild<QVBoxLayout*>("_2")->findChild<QHBoxLayout*>("horizontalLayout");
+    //QPushButton* w = hbox->findChild<QPushButton*>(QString("abortButton"));
+    //w->setText("Ciao");
+    hbox->itemAt(1)->widget()->setVisible(false);
+    //hbox->itemAt(1)->widget()->setText("Ciao");
+    QPushButton* editButton = new QPushButton("Modifica");
+    //connect
+    connect(editButton, &QPushButton::clicked, this, &MainWindow::handleShowModifyEventDialog);
+    hbox->insertWidget(3, editButton);
+
+    eventDialog->setModal("true");
+    eventDialog->show();
+
+}
+
+/**
+ * @brief This function shows the eventDialog filled of event parameters ready to be modified
+ * @param event the event to be modified
+ */
+void MainWindow::handleShowModifyEventDialog() {
+
+        eventDialog->setUpdating(true);
+
+        // Prepare fields
+        eventDialog->disableFields(false);
 
         // Events that happen when event is modified (on button click)
         connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
         // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
-//        connect(eventDialog, &EventDialog::eventModifyEvent, cal, &Calendar::handleModifyEvent);
+        connect(eventDialog, &EventDialog::eventModifyEvent, eventDialog->getCal(), &Calendar::handleModifyEvent);
 //        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
 //        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
-    }
 
-    eventDialog->setModal("true");
-    eventDialog->show();
+        //originali
+        //connect(cal, &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
+        //connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
+
+    QHBoxLayout *hbox = eventDialog->findChild<QVBoxLayout*>("_2")->findChild<QHBoxLayout*>("horizontalLayout");
+    //Rendo di nuovo visibile pulsante "Conferma"
+    hbox->itemAt(1)->widget()->setVisible(true);
+    //connect(editButton, SIGNAL(clicked()), this, SLOT(handleModifyEvent()));
+    //Rimuovo pulsante "Modifica"
+    hbox->itemAt(3)->widget()->setVisible(false);
+    //hbox->removeItem(hbox->itemAt(3));
+    //hbox->takeAt(3);
 }
+
+///**
+// * @brief This function shows the eventDialog filled of event parameters ready to be modified
+// * @param event the event to be modified
+// */
+//void MainWindow::handleShowModifyEventDialog(Event* event) {
+//    if(eventDialog == NULL) {
+//        eventDialog = new EventDialog(this);
+
+//        QString calName;
+//        client->calendarList();
+
+//        // Search for calendar to which event is connected to
+//        for(Calendar* cal : client->calendarList()) {
+//            for(Event* ev : cal->eventsList()) {
+//                if(ev->uid() == event->uid()) {
+//                    calName = cal->displayName();
+//                }
+//            }
+//        }
+
+//        // Pair the eventDialog to the event
+//        eventDialog->setEvent(event);
+//        eventDialog->setCalName(calName);
+
+//        // Prepare fields
+//        eventDialog->setFields();
+
+//        // Events that happen when event is modified (on button click)
+//        connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
+//        // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
+////        connect(eventDialog, &EventDialog::eventModifyEvent, cal, &Calendar::handleModifyEvent);
+////        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
+////        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
+//    }
+
+//    QHBoxLayout *hbox = eventDialog->findChild<QVBoxLayout*>("_2")->findChild<QHBoxLayout*>("horizontalLayout");
+//    //QPushButton* w = hbox->findChild<QPushButton*>(QString("abortButton"));
+//    //w->setText("Ciao");
+//    hbox->itemAt(1)->widget()->setVisible(true);
+//    //hbox->itemAt(1)->widget()->setText("Ciao");
+//    QPushButton* editButton = new QPushButton("Fatto");
+//    //connect
+//    //connect(editButton, SIGNAL(clicked()), this, SLOT(handleModifyEvent()));
+//    hbox->insertWidget(3, editButton);
+
+//    //eventDialog->setModal("true");
+//    //eventDialog->show();
+//}
 
 void MainWindow::handleCloseModifyEventDialog() {
     eventDialog->hide();
@@ -575,7 +668,8 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
 
         fullBoxes->addLayout(fullBox);
 
-        connect(infoEvent, &QPushButton::clicked, eventsList[i], &Event::showEvent);
+        connect(infoEvent, &QPushButton::clicked, eventsList[i], &Event::handleShowEvent);
+        connect(eventsList[i], &Event::showEvent, this, &MainWindow::handleShowInfoEventDialog);
 
         connect(editEvent, &QAbstractButton::clicked, eventsList[i], &Event::handleEditEvent);
         connect(eventsList[i], &Event::editEvent, this, &MainWindow::handleShowModifyEventDialog);

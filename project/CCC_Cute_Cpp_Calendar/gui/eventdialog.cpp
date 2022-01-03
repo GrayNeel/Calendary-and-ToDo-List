@@ -1,4 +1,6 @@
 #include "eventdialog.h"
+#include "eventdialog.h"
+#include "eventdialog.h"
 #include "ui_eventdialog.h"
 
 EventDialog::EventDialog(QWidget *parent) :
@@ -110,7 +112,11 @@ void EventDialog::on_confirmButton_clicked()
 
     // If this line is reached, validation went well. No response to show.
     handleEventResponse("");
-    emit eventAddEvent(summary, location, description, startDateTime, endDateTime);
+
+    if(updating)
+        emit eventModifyEvent(summary, location, description, startDateTime, endDateTime);
+    else
+        emit eventAddEvent(summary, location, description, startDateTime, endDateTime);
 }
 
 Calendar *EventDialog::getCal() const
@@ -140,6 +146,11 @@ void EventDialog::on_abortButton_clicked()
 void EventDialog::on_EventDialog_rejected()
 {
     emit closeEventDialog();
+}
+
+void EventDialog::setUpdating(bool value)
+{
+    updating = value;
 }
 
 Event *EventDialog::getEvent() const
@@ -200,4 +211,21 @@ void EventDialog::setFields() {
     ui->endingHoursLine->setText(enH);
     ui->endingMinutesLine->setText(enM);
 }
+
+void EventDialog::disableFields(bool status) {
+
+    ui->summaryLine->setDisabled(status);
+    ui->locationLine->setDisabled(status);
+    ui->descriptionText->setDisabled(status);
+    ui->calendarWidgetStart->setDisabled(status);
+    ui->calendarWidgetEnd->setDisabled(status);
+    ui->uidLine->setDisabled(status);
+
+    ui->startingHoursLine->setDisabled(status);
+    ui->startingMinutesLine->setDisabled(status);
+
+    ui->endingHoursLine->setDisabled(status);
+    ui->endingMinutesLine->setDisabled(status);
+}
+
 

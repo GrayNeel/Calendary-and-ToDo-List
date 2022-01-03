@@ -22,14 +22,18 @@ public:
     void setCal(Calendar *newCal);
     void setCalName(QString calname);
     void setFields();
+    void disableFields(bool status);
 
     Calendar *getCal() const;
 
     Event *getEvent() const;
     void setEvent(Event *newEv);
 
+    void setUpdating(bool value);
+
 signals:
     void eventAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
+    void eventModifyEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
     void closeEventDialog();
 
 public slots:
@@ -46,6 +50,7 @@ private:
     Calendar* cal;
 
     Event* event;
+    bool updating;
 
     void handleEventResponse(QString errorMessage);
 };

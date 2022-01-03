@@ -141,19 +141,20 @@ void Event::setColour(const QString &newColour)
 }
 
 
-void Event::showEvent(){
-    QString italianDateFormat = "ddd dd/MM/yyyy";
-    QString italianTimeFormat = "hh:mm";
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.setText("Titolo:\t\t" + _summary + "\n"
-                   "Descrizione:\t" + _description + "\n"
-                   "Luogo:\t\t" + _location + "\n"
-                   "Data di inizio:\t" + _startDateTime.date().toString(italianDateFormat) + "\n"
-                   "Ora di inizio:\t" + _startDateTime.time().toString(italianTimeFormat) + "\n"
-                   "Data di fine:\t" + _endDateTime.date().toString(italianDateFormat) + "\n"
-                   "Ora di fine:\t" + _endDateTime.time().toString(italianTimeFormat) + "\n");
-    msgBox.exec();
+void Event::handleShowEvent(){
+//    QString italianDateFormat = "ddd dd/MM/yyyy";
+//    QString italianTimeFormat = "hh:mm";
+//    QMessageBox msgBox;
+//    msgBox.setIcon(QMessageBox::Information);
+//    msgBox.setText("Titolo:\t\t" + _summary + "\n"
+//                   "Descrizione:\t" + _description + "\n"
+//                   "Luogo:\t\t" + _location + "\n"
+//                   "Data di inizio:\t" + _startDateTime.date().toString(italianDateFormat) + "\n"
+//                   "Ora di inizio:\t" + _startDateTime.time().toString(italianTimeFormat) + "\n"
+//                   "Data di fine:\t" + _endDateTime.date().toString(italianDateFormat) + "\n"
+//                   "Ora di fine:\t" + _endDateTime.time().toString(italianTimeFormat) + "\n");
+//    msgBox.exec();
+    emit showEvent(this);
 }
 
 void Event::handleRemoveEvent(){

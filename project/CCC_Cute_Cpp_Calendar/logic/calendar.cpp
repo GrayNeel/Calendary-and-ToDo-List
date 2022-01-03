@@ -395,6 +395,9 @@ void Calendar::handleAddEvent(QString summary, QString location, QString descrip
     APIAddEvent(newEvent);
 }
 
+void Calendar::handleModifyEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
+    qDebug() << "Voglio modificare";
+}
 /**
  *
  * @brief This API push a new event in a VCalendar Object from a specific calendar

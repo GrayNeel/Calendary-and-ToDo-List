@@ -34,7 +34,8 @@ private slots:
     void handleAddEventFinished();
     void handleAddEventError();
     void handleAddEventWithoutError();
-    void handleShowModifyEventDialog(Event *event);
+    void handleShowInfoEventDialog(Event *event);
+    void handleShowModifyEventDialog();
 
     void handleUpdateMainWindowWidgets();
 
