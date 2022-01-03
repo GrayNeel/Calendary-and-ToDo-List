@@ -44,7 +44,8 @@ private slots:
     void handleAddTodoFinished();
     void handleAddTodoError();
     void handleAddTodoWithoutError();
-    void handleShowModifyTodoDialog(Todo* todo);
+    void handleShowInfoTodoDialog(Todo* todo);
+    void handleShowModifyTodoDialog();
     void handleCloseModifyTodoDialog();
 
 private:

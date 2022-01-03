@@ -27,8 +27,12 @@ public:
     void setTodo(Todo *newTodo);
 
     void setFields();
+    void disableFields(bool status);
+    void setUpdating(bool value);
+
 signals:
     void eventAddTodo(QString summary, QDateTime dueDateTime);
+    void eventModifyTodo(QString summary, QDateTime dueDateTime);
     void closeTodoDialog();
 
 private slots:
@@ -42,6 +46,7 @@ private:
     Ui::TodoDialog *ui;
     Calendar* cal;
 
+    bool updating;
     Todo* todo;
     void handleTodoResponse(QString errorMessage);
 };

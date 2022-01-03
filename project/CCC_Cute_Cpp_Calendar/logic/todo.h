@@ -26,10 +26,11 @@ public:
     void setColour(const QString &newColour);
 
 public slots:
-    void showTodo();
+    void handleShowTodo();
     void handleRemoveTodo();
     void handleEditTodo();
 signals:
+    void showTodo(Todo* todo);
     void removeTodo(Todo* todo);
     void editTodo(Todo* todo);
 

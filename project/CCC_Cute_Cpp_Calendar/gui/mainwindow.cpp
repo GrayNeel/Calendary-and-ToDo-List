@@ -166,6 +166,8 @@ void MainWindow::eventShowTodoDialog(Calendar* cal) {
         connect(cal, &Calendar::todoRetrieveError, this, &MainWindow::handleAddTodoError);
     }
 
+    todoDialog->setUpdating(false);
+
     todoDialog->setModal("true");
     todoDialog->show();
 }
@@ -274,7 +276,6 @@ void MainWindow::handleShowModifyEventDialog() {
         eventDialog->disableFields(false);
 
         // Events that happen when event is modified (on button click)
-        connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
         // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
         connect(eventDialog, &EventDialog::eventModifyEvent, eventDialog->getCal(), &Calendar::handleModifyEvent);
 //        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
@@ -294,55 +295,6 @@ void MainWindow::handleShowModifyEventDialog() {
     //hbox->takeAt(3);
 }
 
-///**
-// * @brief This function shows the eventDialog filled of event parameters ready to be modified
-// * @param event the event to be modified
-// */
-//void MainWindow::handleShowModifyEventDialog(Event* event) {
-//    if(eventDialog == NULL) {
-//        eventDialog = new EventDialog(this);
-
-//        QString calName;
-//        client->calendarList();
-
-//        // Search for calendar to which event is connected to
-//        for(Calendar* cal : client->calendarList()) {
-//            for(Event* ev : cal->eventsList()) {
-//                if(ev->uid() == event->uid()) {
-//                    calName = cal->displayName();
-//                }
-//            }
-//        }
-
-//        // Pair the eventDialog to the event
-//        eventDialog->setEvent(event);
-//        eventDialog->setCalName(calName);
-
-//        // Prepare fields
-//        eventDialog->setFields();
-
-//        // Events that happen when event is modified (on button click)
-//        connect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
-//        // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
-////        connect(eventDialog, &EventDialog::eventModifyEvent, cal, &Calendar::handleModifyEvent);
-////        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
-////        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
-//    }
-
-//    QHBoxLayout *hbox = eventDialog->findChild<QVBoxLayout*>("_2")->findChild<QHBoxLayout*>("horizontalLayout");
-//    //QPushButton* w = hbox->findChild<QPushButton*>(QString("abortButton"));
-//    //w->setText("Ciao");
-//    hbox->itemAt(1)->widget()->setVisible(true);
-//    //hbox->itemAt(1)->widget()->setText("Ciao");
-//    QPushButton* editButton = new QPushButton("Fatto");
-//    //connect
-//    //connect(editButton, SIGNAL(clicked()), this, SLOT(handleModifyEvent()));
-//    hbox->insertWidget(3, editButton);
-
-//    //eventDialog->setModal("true");
-//    //eventDialog->show();
-//}
-
 void MainWindow::handleCloseModifyEventDialog() {
     eventDialog->hide();
 
@@ -355,15 +307,11 @@ void MainWindow::handleCloseModifyEventDialog() {
     delete eventDialog;
     eventDialog = NULL;
 }
-
-/**
- * @brief This function shows the eventDialog filled of event parameters ready to be modified
- * @param event the event to be modified
- */
-void MainWindow::handleShowModifyTodoDialog(Todo* todo) {
+void MainWindow::handleShowInfoTodoDialog(Todo* todo) {
     if(todoDialog == NULL) {
         todoDialog = new TodoDialog(this);
 
+        Calendar* calToPair;
         QString calName;
         client->calendarList();
 
@@ -372,27 +320,67 @@ void MainWindow::handleShowModifyTodoDialog(Todo* todo) {
             for(Todo* td : cal->todosList()) {
                 if(td->uid() == todo->uid()) {
                     calName = cal->displayName();
+                    calToPair = cal;
+                    break;
                 }
             }
         }
 
         // Pair the eventDialog to the event
         todoDialog->setTodo(todo);
+        todoDialog->setCal(calToPair);
         todoDialog->setCalName(calName);
 
         // Prepare fields
         todoDialog->setFields();
+        todoDialog->disableFields(true);
+
+        // Events that happen when event is modified (on button click)
+        connect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleCloseModifyTodoDialog);
+    }
+
+
+    QHBoxLayout *hbox = todoDialog->findChild<QVBoxLayout*>("verticalLayout")->findChild<QVBoxLayout*>("verticalLayout_2")->findChild<QHBoxLayout*>("horizontalLayout_5");
+    //QPushButton* w = hbox->findChild<QPushButton*>(QString("abortButton"));
+    //w->setText("Ciao");
+    hbox->itemAt(1)->widget()->setVisible(false);
+    //hbox->itemAt(1)->widget()->setText("Ciao");
+    QPushButton* editButton = new QPushButton("Modifica");
+    //connect
+    connect(editButton, &QPushButton::clicked, this, &MainWindow::handleShowModifyTodoDialog);
+    hbox->insertWidget(3, editButton);
+
+    todoDialog->setModal("true");
+    todoDialog->show();
+}
+
+/**
+ * @brief This function shows the eventDialog filled of event parameters ready to be modified
+ * @param event the event to be modified
+ */
+void MainWindow::handleShowModifyTodoDialog() {
+
+        todoDialog->setUpdating(true);
+        // Prepare fields
+        todoDialog->setFields();
+        todoDialog->disableFields(false);
 
         // Events that happen when event is modified (on button click)
         connect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleCloseModifyTodoDialog);
         // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
-//        connect(eventDialog, &EventDialog::eventModifyEvent, cal, &Calendar::handleModifyEvent);
+        connect(todoDialog, &TodoDialog::eventModifyTodo, todoDialog->getCal(), &Calendar::handleModifyTodo);
 //        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
 //        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
-    }
 
-    todoDialog->setModal("true");
-    todoDialog->show();
+
+        QHBoxLayout *hbox = todoDialog->findChild<QVBoxLayout*>("verticalLayout")->findChild<QVBoxLayout*>("verticalLayout_2")->findChild<QHBoxLayout*>("horizontalLayout_5");
+        //Rendo di nuovo visibile pulsante "Conferma"
+        hbox->itemAt(1)->widget()->setVisible(true);
+        //connect(editButton, SIGNAL(clicked()), this, SLOT(handleModifyEvent()));
+        //Rimuovo pulsante "Modifica"
+        hbox->itemAt(3)->widget()->setVisible(false);
+        //hbox->removeItem(hbox->itemAt(3));
+        //hbox->takeAt(3);
 }
 
 void MainWindow::handleCloseModifyTodoDialog() {
@@ -652,8 +640,8 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
 
         QHBoxLayout* thirdLine = new QHBoxLayout();
         thirdLine->setAlignment(Qt::AlignLeft);
-        QPushButton* infoEvent = new QPushButton(QString("Info"));
-        QPushButton* editEvent = new QPushButton(QString("Modifica"));
+        QPushButton* infoEvent = new QPushButton(QString("Info e Modifica"));
+        QPushButton* editEvent = new QPushButton(QString("Modifica (deprecated)"));
         QPushButton* deleteEvent = new QPushButton(QString("Cancella"));
 
         thirdLine->addWidget(infoEvent);
@@ -713,7 +701,7 @@ void MainWindow::printTodosList(QList <Todo*> todosList) {
         QPushButton* theText = new QPushButton(QString(todosList[i]->summary()));
 
         QToolButton* editTodo = new QToolButton();
-        editTodo->setText("Modifica");
+        editTodo->setText("Modifica - deprecated");
         //editEvent->setIcon(QIcon::fromTheme("edit-copy"));
         QToolButton* deleteTodo = new QToolButton();
         //editEvent->setIcon(QIcon::fromTheme("edit-delete"));
@@ -740,7 +728,8 @@ void MainWindow::printTodosList(QList <Todo*> todosList) {
         theLine->addWidget(deleteTodo);
         fullBox->addLayout(theLine);
 
-        connect(theText, &QPushButton::clicked, todosList[i], &Todo::showTodo);
+        connect(theText, &QPushButton::clicked, todosList[i], &Todo::handleShowTodo);
+        connect(todosList[i], &Todo::showTodo, this, &MainWindow::handleShowInfoTodoDialog);
 
         connect(editTodo, &QAbstractButton::clicked, todosList[i], &Todo::handleEditTodo);
         connect(todosList[i], &Todo::editTodo, this, &MainWindow::handleShowModifyTodoDialog);

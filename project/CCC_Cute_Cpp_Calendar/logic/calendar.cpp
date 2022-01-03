@@ -586,6 +586,10 @@ void Calendar::handleAddTodo(QString summary, QDateTime dueDateTime) {
     APIAddTodo(newTodo);
 }
 
+void Calendar::handleModifyTodo(QString summary, QDateTime dueDateTime) {
+    qDebug() << "Voglio modificare un todo";
+}
+
 /**
  *
  * @brief This API push a new event in a VCalendar Object from a specific calendar

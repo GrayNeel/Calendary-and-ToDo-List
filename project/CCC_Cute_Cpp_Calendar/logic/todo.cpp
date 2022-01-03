@@ -82,15 +82,16 @@ void Todo::setColour(const QString &newColour)
     _colour = newColour;
 }
 
-void Todo::showTodo(){
-    QString italianDateFormat = "ddd dd/MM/yyyy";
-    QString italianTimeFormat = "hh:mm";
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.setText("Titolo:\t\t" + _summary + "\n"
-                   "Data:\t" + _dueDateTime.date().toString(italianDateFormat) + "\n"
-                   "Ora:\t" + _dueDateTime.time().toString(italianTimeFormat) + "\n");
-    msgBox.exec();
+void Todo::handleShowTodo(){
+//    QString italianDateFormat = "ddd dd/MM/yyyy";
+//    QString italianTimeFormat = "hh:mm";
+//    QMessageBox msgBox;
+//    msgBox.setIcon(QMessageBox::Information);
+//    msgBox.setText("Titolo:\t\t" + _summary + "\n"
+//                   "Data:\t" + _dueDateTime.date().toString(italianDateFormat) + "\n"
+//                   "Ora:\t" + _dueDateTime.time().toString(italianTimeFormat) + "\n");
+//    msgBox.exec();
+    emit showTodo(this);
 }
 
 void Todo::handleRemoveTodo(){

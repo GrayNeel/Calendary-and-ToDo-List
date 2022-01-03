@@ -71,6 +71,16 @@ void TodoDialog::setFields() {
     ui->startingMinutesLine->setText(stM);
 }
 
+void TodoDialog::disableFields(bool status) {
+
+    ui->summaryLine->setDisabled(status);
+    ui->calendarWidgetDate->setDisabled(status);
+    ui->uidLine->setDisabled(status);
+
+    ui->startingHoursLine->setDisabled(status);
+    ui->startingMinutesLine->setDisabled(status);
+}
+
 void TodoDialog::on_confirmButton_clicked()
 {
     // Summary field & check
@@ -124,7 +134,10 @@ void TodoDialog::on_confirmButton_clicked()
 
     // If this line is reached, validation went well. No response to show.
     handleTodoResponse("");
-    emit eventAddTodo(summary, startDateTime);
+    if(updating)
+        emit eventModifyTodo(summary, startDateTime);
+    else
+        emit eventAddTodo(summary, startDateTime);
 }
 
 void TodoDialog::handleTodoResponse(QString errorMessage) {
@@ -140,5 +153,10 @@ void TodoDialog::on_abortButton_clicked()
 void TodoDialog::on_TodoDialog_rejected()
 {
     emit closeTodoDialog();
+}
+
+void TodoDialog::setUpdating(bool value)
+{
+    updating = value;
 }
 

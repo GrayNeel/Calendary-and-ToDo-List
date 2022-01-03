@@ -53,6 +53,7 @@ public slots:
     void handleAddTodo(QString summary, QDateTime dueDateTime);
 
     void handleModifyEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
+    void handleModifyTodo(QString summary, QDateTime dueDateTime);
 
     void deleteEvent(Event *event);
     void deleteTodo(Todo *todo);
