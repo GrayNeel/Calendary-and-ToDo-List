@@ -395,8 +395,84 @@ void Calendar::handleAddEvent(QString summary, QString location, QString descrip
     APIAddEvent(newEvent);
 }
 
-void Calendar::handleModifyEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
+void Calendar::handleModifyEvent(QString oldUid, QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime) {
     qDebug() << "Voglio modificare";
+    Event* oldEvent;
+    for(Event* ev : _eventsList) {
+        if(ev->uid() == oldUid) {
+            oldEvent = ev;
+            break;
+        }
+    }
+    //Se l'update andrà a buon fine sul server rimuoverò/aggiornerò anche in locale
+    //oppure
+    //Se l'update non andrà a buon fine (TODO) cancellare la risorsa e fare l'update generale
+    Event* newEvent = new Event(QString(oldUid), QString(""), summary, location, description, QString(""), QString(""), startDateTime, endDateTime, _colour);
+    QString oldEtag = oldEvent->etag();
+    _eventsList.removeOne(oldEvent);
+    _eventsList.append(newEvent);
+    APIUpdateEvent(newEvent, oldEtag);
+}
+/**
+ *
+ * @brief This API updates an existing event (a VCalendar Object) in a specific calendar
+ */
+void Calendar::APIUpdateEvent(Event* event, QString etag) {
+    // https://datatracker.ietf.org/doc/html/rfc4791#section-5.3.2
+    QNetworkRequest request;
+
+    // Building the header of a PUT request to push a VCalendar Object for ONE VEVENT
+
+    request.setUrl(QUrl(_url + event->filename()));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    //"The "If-Match: etag" request header ensures that the client will not inadvertently overwrite a resource updated from someone else
+    //This property allow to work with asynchronously shared access to the resource.
+    request.setRawHeader("If-Match", QByteArray(etag.toLatin1()));
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+
+    // Building the Body
+
+    QString requestString = "BEGIN:VCALENDAR\r\n"
+                            "VERSION:2.0\r\n"
+                            "BEGIN:VEVENT\r\n"
+                            "UID:" + event->uid() + "\r\n"
+                            "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
+                            "DTSTART:" + event->startDateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+                            "DTEND:" + event->endDateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+                            "SUMMARY:" + event->summary() + "\r\n"
+                            "LOCATION:" + event->location() + "\r\n"
+                            "DESCRIPTION:" + event->description() + "\r\n";
+    if (!event->rrule().isEmpty())
+    {
+      requestString.append("RRULE:" + event->rrule() + "\r\n");
+    }
+
+    if (!event->exdate().isEmpty())
+    {
+      requestString.append("EXDATE:" + event->exdate() + "\r\n");
+    }
+
+    requestString.append("END:VEVENT\r\nEND:VCALENDAR");
+
+    QBuffer* buffer = new QBuffer();
+    buffer->open(QIODevice::ReadWrite);
+
+    int bufferSize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+
+    QByteArray contentLength;
+    contentLength.append(QString::number(bufferSize).toStdString());
+
+    request.setRawHeader("Content-Length", contentLength);
+
+    //No custom request, just a put
+    _reply = _manager->put(request, buffer);
+
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVEventFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
 /**
  *
@@ -508,16 +584,20 @@ void Calendar::handleAddingVEventFinished(){
     //QUrl resourceUri = _reply->url();
     QUrl resourceUrl = _reply->request().url();
 
+    //TODO gestire caso in cui non c'era un etag per quella update e quindi bisogna refreshare il calendario e abortire l'operazione
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Evento aggiunto correttamente";
         //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
         getForLastResource(resourceUrl);
         emit eventAddFinished();
+        //I can connect two slot to the same signal... but maybe I want to create completely different API for update
+        emit eventModifyFinished();
 
     } else {
-        qDebug() << "Evento non aggiunto. Errore: " << _statusCode;
+        qDebug() << "Evento non aggiunto/aggiornato. Errore: " << _statusCode;
         _eventsList.removeLast();
         emit eventRetrieveError();
+        emit eventModifyRetrieveError();
     }
 }
 

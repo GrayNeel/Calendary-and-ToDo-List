@@ -114,7 +114,7 @@ void EventDialog::on_confirmButton_clicked()
     handleEventResponse("");
 
     if(updating)
-        emit eventModifyEvent(summary, location, description, startDateTime, endDateTime);
+        emit eventModifyEvent(event->uid(), summary, location, description, startDateTime, endDateTime);
     else
         emit eventAddEvent(summary, location, description, startDateTime, endDateTime);
 }

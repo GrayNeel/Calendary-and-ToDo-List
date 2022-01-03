@@ -278,8 +278,8 @@ void MainWindow::handleShowModifyEventDialog() {
         // Events that happen when event is modified (on button click)
         // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
         connect(eventDialog, &EventDialog::eventModifyEvent, eventDialog->getCal(), &Calendar::handleModifyEvent);
-//        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
-//        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
+        connect(eventDialog->getCal(), &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
+        connect(eventDialog->getCal(), &Calendar::eventModifyRetrieveError, this, &MainWindow::handleModifyEventError);
 
         //originali
         //connect(cal, &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
@@ -295,6 +295,9 @@ void MainWindow::handleShowModifyEventDialog() {
     //hbox->takeAt(3);
 }
 
+/**
+ * @brief Handle the closing of an EventDialog opened to modify event: for an event edite succesfully, unsuccesfully or when the modal is closed by the proper button
+ */
 void MainWindow::handleCloseModifyEventDialog() {
     eventDialog->hide();
 
@@ -304,9 +307,42 @@ void MainWindow::handleCloseModifyEventDialog() {
      **/
     disconnect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
 
+//    disconnect(eventDialog, &EventDialog::eventAddEvent, eventDialog->getCal(), &Calendar::handleAddEvent);
+//    disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventFinished);
+//    disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
+//    disconnect(eventDialog->getCal(), &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
+
     delete eventDialog;
     eventDialog = NULL;
 }
+
+/**
+ * @brief Shows a popup message that event has not been successfully added
+ */
+void MainWindow::handleModifyEventError() {
+    handleCloseModifyEventDialog();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText("L'evento NON è stato aggiornato correttamente");
+    msgBox.exec();
+}
+
+/**
+ * @brief Shows a popup message that event has been successfully added
+ */
+void MainWindow::handleModifyEventWithoutError() {
+    handleCloseModifyEventDialog();
+    handleUpdateMainWindowWidgets();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setText("L'evento è stato aggiornato correttamente");
+    msgBox.exec();
+}
+
+
+
+
+
 void MainWindow::handleShowInfoTodoDialog(Todo* todo) {
     if(todoDialog == NULL) {
         todoDialog = new TodoDialog(this);

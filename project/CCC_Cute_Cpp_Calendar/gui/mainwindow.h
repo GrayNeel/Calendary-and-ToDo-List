@@ -40,6 +40,9 @@ private slots:
     void handleUpdateMainWindowWidgets();
 
     void handleCloseModifyEventDialog();
+    void handleModifyEventWithoutError();
+    void handleModifyEventError();
+
     void eventShowTodoDialog(Calendar *cal);
     void handleAddTodoFinished();
     void handleAddTodoError();

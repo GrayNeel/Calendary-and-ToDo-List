@@ -33,7 +33,7 @@ public:
 
 signals:
     void eventAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
-    void eventModifyEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
+    void eventModifyEvent(QString oldUid, QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
     void closeEventDialog();
 
 public slots:

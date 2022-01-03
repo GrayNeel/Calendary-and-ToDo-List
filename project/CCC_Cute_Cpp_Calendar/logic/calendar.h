@@ -47,12 +47,14 @@ signals:
     void showTodoDialog(Calendar* cal);
     void todoAddFinished();
     void todoRetrieveError();
+    void eventModifyFinished();
+    void eventModifyRetrieveError();
 
 public slots:
     void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
     void handleAddTodo(QString summary, QDateTime dueDateTime);
 
-    void handleModifyEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
+    void handleModifyEvent(QString oldUid, QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
     void handleModifyTodo(QString summary, QDateTime dueDateTime);
 
     void deleteEvent(Event *event);
@@ -78,6 +80,8 @@ private slots:
     void handleAddingVEventFinished();
     void handleDeletingVTodoFinished();
     void handleAddingVTodoFinished();
+
+    void APIUpdateEvent(Event* event, QString oldEtag);
 private:
     QString _username;
     QString _password;
