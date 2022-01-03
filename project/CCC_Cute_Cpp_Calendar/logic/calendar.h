@@ -49,6 +49,8 @@ signals:
     void todoRetrieveError();
     void eventModifyFinished();
     void eventModifyRetrieveError();
+    void todoModifyFinished();
+    void todoModifyRetrieveError();
 
 public slots:
     void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);

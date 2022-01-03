@@ -43,13 +43,16 @@ private slots:
     void handleModifyEventWithoutError();
     void handleModifyEventError();
 
+    void handleCloseModifyTodoDialog();
+    void handleModifyTodoWithoutError();
+    void handleModifyTodoError();
+
     void eventShowTodoDialog(Calendar *cal);
     void handleAddTodoFinished();
     void handleAddTodoError();
     void handleAddTodoWithoutError();
     void handleShowInfoTodoDialog(Todo* todo);
     void handleShowModifyTodoDialog();
-    void handleCloseModifyTodoDialog();
 
 private:
     Ui::MainWindow *ui;

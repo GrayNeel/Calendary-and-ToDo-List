@@ -730,11 +730,12 @@ void Calendar::handleAddingVTodoFinished(){
         //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
         getForLastResource(resourceUrl);
         emit todoAddFinished();
-
+        emit todoModifyFinished();
     } else {
         qDebug() << "Todo non aggiunto. Errore: " << _statusCode;
         _todosList.removeLast();
         emit todoRetrieveError();
+        emit todoModifyRetrieveError();
     }
 }
 

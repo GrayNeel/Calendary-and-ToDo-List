@@ -275,7 +275,6 @@ void MainWindow::handleShowModifyEventDialog() {
         eventDialog->disableFields(false);
 
         // Events that happen when event is modified (on button click)
-        // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
         connect(eventDialog, &EventDialog::eventModifyEvent, eventDialog->getCal(), &Calendar::handleModifyEvent);
         connect(eventDialog->getCal(), &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
         connect(eventDialog->getCal(), &Calendar::eventModifyRetrieveError, this, &MainWindow::handleModifyEventError);
@@ -397,11 +396,9 @@ void MainWindow::handleShowModifyTodoDialog() {
         todoDialog->disableFields(false);
 
         // Events that happen when event is modified (on button click)
-        connect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleCloseModifyTodoDialog);
-        // TODO: ADD CONNECT TO HANDLE MODIFY OF EVENT
         connect(todoDialog, &TodoDialog::eventModifyTodo, todoDialog->getCal(), &Calendar::handleModifyTodo);
-//        connect(cal, &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
-//        connect(cal, &Calendar::eventRetrieveError, this, &MainWindow::handleModifyEventError);
+        connect(todoDialog->getCal(), &Calendar::todoModifyFinished, this, &MainWindow::handleModifyTodoWithoutError);
+        connect(todoDialog->getCal(), &Calendar::todoModifyRetrieveError, this, &MainWindow::handleModifyTodoError);
 
 
         QHBoxLayout *hbox = todoDialog->findChild<QVBoxLayout*>("verticalLayout")->findChild<QVBoxLayout*>("verticalLayout_2")->findChild<QHBoxLayout*>("horizontalLayout_5");
@@ -424,6 +421,29 @@ void MainWindow::handleCloseModifyTodoDialog() {
 
     delete todoDialog;
     todoDialog = NULL;
+}
+
+/**
+ * @brief Shows a popup message that event has not been successfully added
+ */
+void MainWindow::handleModifyTodoError() {
+    handleCloseModifyTodoDialog();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText("Il To-Do NON è stato aggiornato correttamente");
+    msgBox.exec();
+}
+
+/**
+ * @brief Shows a popup message that event has been successfully added
+ */
+void MainWindow::handleModifyTodoWithoutError() {
+    handleCloseModifyTodoDialog();
+    handleUpdateMainWindowWidgets();
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setText("Il To-Do è stato aggiornato correttamente");
+    msgBox.exec();
 }
 
 
