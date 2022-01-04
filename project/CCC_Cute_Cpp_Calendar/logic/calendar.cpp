@@ -536,7 +536,7 @@ void Calendar::APIAddEvent(Event* event) {
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
 
-void Calendar::getForLastResource(QUrl resourceUrl){
+void Calendar::getForLastVEventResource(QUrl resourceUrl){
     QNetworkRequest request;
 
     // Building the header of a GET request to just retrieve the etag for the last event added
@@ -549,13 +549,32 @@ void Calendar::getForLastResource(QUrl resourceUrl){
 
     _reply = _manager->get(request);
     // When request ends check the status (200 OK or not) and then handle the Reply
-    connect(_reply, SIGNAL(finished()), this, SLOT(handleGetFinished()));
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleGetVEventFinished()));
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 
 }
 
-void Calendar::handleGetFinished(){
+void Calendar::getForLastTodoResource(QUrl resourceUrl){
+    QNetworkRequest request;
+
+    // Building the header of a GET request to just retrieve the etag for the last event added
+
+    request.setUrl(resourceUrl);
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // Fallback to HTTP 1.1
+    request.setRawHeader("Depth", "0");
+    request.setRawHeader("Prefer", "return-minimal");
+    request.setRawHeader("Content-Type", "application/xml; charset=utf-8");
+
+    _reply = _manager->get(request);
+    // When request ends check the status (200 OK or not) and then handle the Reply
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleGetTodoFinished()));
+    // If authentication is required, provide credentials
+    connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
+
+}
+
+void Calendar::handleGetVEventFinished(){
     _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     if (_statusCode >= 200 && _statusCode < 300) {
@@ -579,6 +598,30 @@ void Calendar::handleGetFinished(){
     }
 }
 
+void Calendar::handleGetTodoFinished(){
+    _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    if (_statusCode >= 200 && _statusCode < 300) {
+        qDebug() << "Get eseguita correttamente: "<< _statusCode;
+        if(_reply->hasRawHeader(QByteArray("ETag"))){
+            //Save the etag in the event with the name of the url resource/or the last one appended
+            QString etag = _reply->header(QNetworkRequest::ETagHeader).toString();
+            _todosList.last()->setEtag(etag);
+            qDebug()<< "Etag dell'ultimo oggetto (recuperato dalla get):" << etag;
+            qDebug() << "Ultimo evento aggiunto: " << _todosList.last()->filename();
+            qDebug() << "Etag aggiornato: " << _todosList.last()->etag();
+        }
+        else
+            qDebug()<< "Errore: nessun header Etag trovato nella risposta";
+        //emit todoAddFinished();
+    //TODO rifai richiesta per l'etag
+    } else {
+        qDebug() << "Get errata: " << _statusCode;
+        //_todosList.removeLast();
+        //emit todoRetrieveError();
+    }
+}
+
 void Calendar::handleAddingVEventFinished(){
     _statusCode = _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     //QUrl resourceUri = _reply->url();
@@ -588,7 +631,7 @@ void Calendar::handleAddingVEventFinished(){
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Evento aggiunto correttamente";
         //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
-        getForLastResource(resourceUrl);
+        getForLastVEventResource(resourceUrl);
         emit eventAddFinished();
         //I can connect two slot to the same signal... but maybe I want to create completely different API for update
         emit eventModifyFinished();
@@ -790,7 +833,7 @@ void Calendar::handleAddingVTodoFinished(){
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Todo aggiunto correttamente";
         //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
-        getForLastResource(resourceUrl);
+        getForLastTodoResource(resourceUrl);
         emit todoAddFinished();
         emit todoModifyFinished();
     } else {

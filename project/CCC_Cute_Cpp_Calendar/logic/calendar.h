@@ -74,8 +74,8 @@ private slots:
     void handleAddNewTodoPopUp();
     void handleDeletingVEventFinished();
 
-    void handleGetFinished();
-
+    void handleGetVEventFinished();
+    void handleGetTodoFinished();
 
 
     void APIAddEvent(Event *event);
@@ -102,7 +102,8 @@ private:
 
     QList<Event*> _eventsList;
     QList<Todo*> _todosList;
-    void getForLastResource(QUrl resourceUrl);
+    void getForLastVEventResource(QUrl resourceUrl);
+    void getForLastTodoResource(QUrl resourceUrl);
     void parseResponse();
     void parseCalendarData(QString entity, QString uri, QString etag);
     void APIAddTodo(Todo *todo);
