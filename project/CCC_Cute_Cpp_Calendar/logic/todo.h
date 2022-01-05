@@ -28,11 +28,10 @@ public:
 public slots:
     void handleShowTodo();
     void handleRemoveTodo();
-    void handleEditTodo();
+
 signals:
     void showTodo(Todo* todo);
     void removeTodo(Todo* todo);
-    void editTodo(Todo* todo);
 
 private:
     QString _uid;

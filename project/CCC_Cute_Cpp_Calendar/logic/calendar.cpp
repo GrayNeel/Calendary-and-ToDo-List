@@ -660,9 +660,9 @@ void Calendar::handleAddingVEventFinished(){
 
     } else if (_statusCode == 412) {  //412 Precondition Failed
       //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
-        emit refreshLocalCalendarData(this);
         emit eventRetrieveError();
         emit eventModifyRetrieveError();
+        emit refreshLocalCalendarData(this);
     }
     else {
         qDebug() << "Evento non aggiunto/aggiornato. Errore: " << _statusCode;
@@ -869,9 +869,9 @@ void Calendar::handleAddingVTodoFinished(){
         emit todoModifyFinished();
     }        //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
     else if(_statusCode == 412) {//412 Precondition Failed
-        emit refreshLocalCalendarData(this);
         emit todoRetrieveError();
         emit todoModifyRetrieveError();
+        emit refreshLocalCalendarData(this);
     } else {
 
         qDebug() << "Todo non aggiunto. Errore: " << _statusCode;

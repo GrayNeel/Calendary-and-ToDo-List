@@ -571,7 +571,9 @@ void MainWindow::printCalendars() {
         // The third line will show the buttons
         QHBoxLayout* thirdLine = new QHBoxLayout();
         //Add event button
-        QPushButton* addEventButton = new QPushButton("Nuovo evento", this);
+        QPushButton* addEventButton = new QPushButton("", this);
+        addEventButton->setIcon(QIcon("newEventIcon.svg"));
+        addEventButton->setIconSize(QSize(20, 20));
         // When "Add event" button is pressed call the calendar's slot that will call a slot to show EventDialog and refer to it
         connect(addEventButton, SIGNAL(clicked()), cal, SLOT(handleAddNewEventPopUp()));
         connect(cal,&Calendar::showEventDialog,this,&MainWindow::eventShowEventDialog);
@@ -579,7 +581,9 @@ void MainWindow::printCalendars() {
         thirdLine->addWidget(addEventButton);
 
         //Add todo button
-        QPushButton* addTodoButton = new QPushButton("Nuovo ToDo", this);
+        QPushButton* addTodoButton = new QPushButton("", this);
+        addTodoButton->setIcon(QIcon("newTodoIcon.svg"));
+        addTodoButton->setIconSize(QSize(20, 20));
         // When "Add ToDo" button is pressed call the calendar's slot that will call a slot to show TodoDialog and refer to it
         connect(addTodoButton, SIGNAL(clicked()), cal, SLOT(handleAddNewTodoPopUp()));
         connect(cal,&Calendar::showTodoDialog,this,&MainWindow::eventShowTodoDialog);
@@ -587,7 +591,9 @@ void MainWindow::printCalendars() {
         thirdLine->addWidget(addTodoButton);
 
         //Remove calendar button
-        QPushButton* removeButton = new QPushButton("Rimuovi Calendario", this);
+        QPushButton* removeButton = new QPushButton("", this);
+        removeButton->setIcon(QIcon("deleteIcon.svg"));
+        removeButton->setIconSize(QSize(20, 20));
         // When "Remove" button is pressed call the calendar's slot that will signal to the client/GUI that it has to be deleted
         connect(removeButton, SIGNAL(clicked()), cal, SLOT(handleRemoveCalendar()));
         // Client will update the calendar's list
@@ -668,6 +674,7 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
 
         //Second line contains starting - ending time
         QHBoxLayout* secondLine = new QHBoxLayout();
+        secondLine->setAlignment(Qt::AlignLeft);
 
         QDateTime startDateTime = eventsList[i]->startDateTime();
         QDateTime endDateTime = eventsList[i]->endDateTime();
@@ -696,31 +703,30 @@ void MainWindow::printEventsList(QList <Event*> eventsList) {
 
         time->setStyleSheet("font-style: italic;");
 
+
+        QPushButton* infoEvent = new QPushButton();
+
+        infoEvent->setIcon(QIcon("editIcon.svg"));
+        infoEvent->setIconSize(QSize(20, 20));
+
+        QPushButton* deleteEvent = new QPushButton();
+
+        deleteEvent->setIcon(QIcon("deleteIcon.svg"));
+        deleteEvent->setIconSize(QSize(20, 20));
+
+        secondLine->addWidget(infoEvent);
+        secondLine->addWidget(deleteEvent);
         secondLine->addWidget(time);
-
-        QHBoxLayout* thirdLine = new QHBoxLayout();
-        thirdLine->setAlignment(Qt::AlignLeft);
-        QPushButton* infoEvent = new QPushButton(QString("Info e Modifica"));
-        QPushButton* editEvent = new QPushButton(QString("Modifica (deprecated)"));
-        QPushButton* deleteEvent = new QPushButton(QString("Cancella"));
-
-        thirdLine->addWidget(infoEvent);
-        thirdLine->addWidget(editEvent);
-        thirdLine->addWidget(deleteEvent);
 
         QVBoxLayout* fullBox = new QVBoxLayout();
 
         fullBox->addLayout(firstLine);
         fullBox->addLayout(secondLine);
-        fullBox->addLayout(thirdLine);
 
         fullBoxes->addLayout(fullBox);
 
         connect(infoEvent, &QPushButton::clicked, eventsList[i], &Event::handleShowEvent);
         connect(eventsList[i], &Event::showEvent, this, &MainWindow::handleShowInfoEventDialog);
-
-        connect(editEvent, &QAbstractButton::clicked, eventsList[i], &Event::handleEditEvent);
-        connect(eventsList[i], &Event::editEvent, this, &MainWindow::handleShowModifyEventDialog);
 
         connect(deleteEvent, &QAbstractButton::clicked, eventsList[i], &Event::handleRemoveEvent);
     }
@@ -760,12 +766,10 @@ void MainWindow::printTodosList(QList <Todo*> todosList) {
         QHBoxLayout* theLine = new QHBoxLayout();
         QPushButton* theText = new QPushButton(QString(todosList[i]->summary()));
 
-        QToolButton* editTodo = new QToolButton();
-        editTodo->setText("Modifica - deprecated");
-        //editEvent->setIcon(QIcon::fromTheme("edit-copy"));
         QToolButton* deleteTodo = new QToolButton();
-        //editEvent->setIcon(QIcon::fromTheme("edit-delete"));
-        deleteTodo->setText("Cancella");
+
+        deleteTodo->setIcon(QIcon("deleteIcon.svg"));
+        deleteTodo->setIconSize(QSize(20, 20));
         QWidget* colourBox = new QWidget();
 
         colourBox->setStyleSheet(QString( "background-color: " + todosList[i]->colour() + ";" ));
@@ -777,22 +781,13 @@ void MainWindow::printTodosList(QList <Todo*> todosList) {
         QRegion mask = QRegion(path.toFillPolygon().toPolygon());
         colourBox->setMask(mask);
 
-//        QPalette pal = QPalette();
-//        pal.setColor(QPalette::Window, Qt::black);
-//        fakeWidget->setAutoFillBackground(true);
-//        fakeWidget->setPalette(pal);
-//        fakeWidget->show();
         theLine->addWidget(colourBox);
-        theLine->addWidget(theText);
-        theLine->addWidget(editTodo);
         theLine->addWidget(deleteTodo);
+        theLine->addWidget(theText);
         fullBox->addLayout(theLine);
 
         connect(theText, &QPushButton::clicked, todosList[i], &Todo::handleShowTodo);
         connect(todosList[i], &Todo::showTodo, this, &MainWindow::handleShowInfoTodoDialog);
-
-        connect(editTodo, &QAbstractButton::clicked, todosList[i], &Todo::handleEditTodo);
-        connect(todosList[i], &Todo::editTodo, this, &MainWindow::handleShowModifyTodoDialog);
 
         connect(deleteTodo, &QAbstractButton::clicked, todosList[i], &Todo::handleRemoveTodo);
     }

@@ -42,13 +42,12 @@ public:
 
 signals:
     void removeEvent(Event* event);
-    void editEvent(Event* event);
     void showEvent(Event* event);
 public slots:
 
     void handleShowEvent();
     void handleRemoveEvent();
-    void handleEditEvent();
+
 private slots:
 
 private:

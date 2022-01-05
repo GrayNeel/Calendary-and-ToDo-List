@@ -162,7 +162,3 @@ void Event::handleRemoveEvent(){
     emit removeEvent(this);
 }
 
-
-void Event::handleEditEvent(){
-    emit editEvent(this);
-}

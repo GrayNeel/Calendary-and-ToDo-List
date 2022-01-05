@@ -75,7 +75,7 @@ void TodoDialog::disableFields(bool status) {
 
     ui->summaryLine->setDisabled(status);
     ui->calendarWidgetDate->setDisabled(status);
-    ui->uidLine->setDisabled(status);
+    ui->uidLine->setDisabled(true);
 
     ui->startingHoursLine->setDisabled(status);
     ui->startingMinutesLine->setDisabled(status);

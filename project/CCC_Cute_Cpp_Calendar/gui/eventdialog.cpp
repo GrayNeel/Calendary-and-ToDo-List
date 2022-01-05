@@ -219,7 +219,7 @@ void EventDialog::disableFields(bool status) {
     ui->descriptionText->setDisabled(status);
     ui->calendarWidgetStart->setDisabled(status);
     ui->calendarWidgetEnd->setDisabled(status);
-    ui->uidLine->setDisabled(status);
+    ui->uidLine->setDisabled(true);
 
     ui->startingHoursLine->setDisabled(status);
     ui->startingMinutesLine->setDisabled(status);

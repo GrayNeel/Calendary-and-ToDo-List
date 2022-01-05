@@ -98,8 +98,3 @@ void Todo::handleRemoveTodo(){
     // qDebug() << "Sono lo slot dentro event";
     emit removeTodo(this);
 }
-
-
-void Todo::handleEditTodo(){
-    emit editTodo(this);
-}
