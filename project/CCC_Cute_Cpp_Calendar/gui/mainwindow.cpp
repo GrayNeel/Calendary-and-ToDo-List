@@ -304,10 +304,9 @@ void MainWindow::handleCloseModifyEventDialog() {
      **/
     disconnect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleCloseModifyEventDialog);
 
-//    disconnect(eventDialog, &EventDialog::eventAddEvent, eventDialog->getCal(), &Calendar::handleAddEvent);
-//    disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventFinished);
-//    disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
-//    disconnect(eventDialog->getCal(), &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
+    disconnect(eventDialog, &EventDialog::eventModifyEvent, eventDialog->getCal(), &Calendar::handleModifyEvent);
+    disconnect(eventDialog->getCal(), &Calendar::eventModifyFinished, this, &MainWindow::handleModifyEventWithoutError);
+    disconnect(eventDialog->getCal(), &Calendar::eventModifyRetrieveError, this, &MainWindow::handleModifyEventError);
 
     delete eventDialog;
     eventDialog = NULL;
@@ -418,6 +417,10 @@ void MainWindow::handleCloseModifyTodoDialog() {
      *  but clearing the line texts inside of it
      **/
     disconnect(todoDialog, &TodoDialog::closeTodoDialog, this, &MainWindow::handleCloseModifyTodoDialog);
+
+    disconnect(todoDialog, &TodoDialog::eventModifyTodo, todoDialog->getCal(), &Calendar::handleModifyTodo);
+    disconnect(todoDialog->getCal(), &Calendar::todoModifyFinished, this, &MainWindow::handleModifyTodoWithoutError);
+    disconnect(todoDialog->getCal(), &Calendar::todoModifyRetrieveError, this, &MainWindow::handleModifyTodoError);
 
     delete todoDialog;
     todoDialog = NULL;
