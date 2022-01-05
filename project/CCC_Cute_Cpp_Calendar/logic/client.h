@@ -28,11 +28,14 @@ public:
     QList<Todo*> getTodoByDate(const QDate &date);
 public slots:
     void handleAddCalendar(QString username, QString password, QString url);
-    void handleAddCalendarError(QString errorMessage);
+    void handleAddCalendarError(QString errorMessage, QString url);
 
     void handleAddEventError(QString errorMessage);
     void handleRemoveCalendarFromList(Calendar* cal);
 
+    void handleRefreshCalendars();
+    void handleRefreshCalendar(Calendar *cal);
+    void handleAddCalendarFinished(QString addedUrl);
 signals:
     void requestSyncToken(void);
     void dialogErrorMessage(QString errorMessage);
@@ -51,7 +54,7 @@ private:
 
 
 private slots:
-    void handleAddCalendarFinished();
+
 
 
 

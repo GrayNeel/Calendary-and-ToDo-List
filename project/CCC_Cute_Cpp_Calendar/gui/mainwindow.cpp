@@ -12,11 +12,15 @@ MainWindow::MainWindow(QWidget *parent)
     // Create a connection that will help client communicate to GUI that there is an update
     connect (client, &Client::closeDialog, this, &MainWindow::handleCloseDialog);
     connect (client, &Client::updateMainWindow, this, &MainWindow::handleUpdateMainWindowWidgets);
+    connect (this, &MainWindow::refreshCalendars, client, &Client::handleRefreshCalendars);
 
     dialog = NULL;
     eventDialog = NULL;
     todoDialog = NULL;
 
+    // Set update icon
+    ui->updateButton->setIcon(QIcon("updateIcon.svg"));
+    ui->updateButton->setIconSize(QSize(20, 20));
 
     // Set initial state of GUI    
     handleUpdateMainWindowWidgets();
@@ -64,19 +68,22 @@ void MainWindow::on_calendarWidget_clicked(const QDate &date)
  * @brief Handles the close of the Add Calendar Dialog and its deletion
  */
 void MainWindow::handleCloseDialog() {
-    dialog->hide();
+    if(dialog!=NULL)
+    {
+        dialog->hide();
 
-    /**
+        /**
      *  The alternative to disconnect is to DO NOT delete the dialog
      *  but clearing the line texts inside of it
      **/
-    disconnect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
-    disconnect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
-    disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleUpdateMainWindowWidgets);
-    disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
+        disconnect(dialog, &Dialog::eventAddCalendar, client, &Client::handleAddCalendar);
+        disconnect(client, &Client::dialogErrorMessage, dialog, &Dialog::handleResponse);
+        disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleUpdateMainWindowWidgets);
+        disconnect(dialog, &Dialog::closeDialog, this, &MainWindow::handleCloseDialog);
 
-    delete dialog;
-    dialog = NULL;
+        delete dialog;
+        dialog = NULL;
+    }
 }
 
 /**
@@ -793,3 +800,9 @@ void MainWindow::printTodosList(QList <Todo*> todosList) {
     tdBoxes->setLayout(fullBox);
     ui->todoScrollArea->setWidget(tdBoxes);
 }
+
+void MainWindow::on_updateButton_clicked()
+{
+    emit refreshCalendars();
+}
+

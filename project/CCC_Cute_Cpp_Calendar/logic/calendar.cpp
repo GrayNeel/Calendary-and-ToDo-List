@@ -4,12 +4,17 @@ Calendar::Calendar(QObject *parent) : QObject(parent)
 {
     // Create a QNetworkAccessManager that will be unique for this specific calendar
     _manager = new QNetworkAccessManager(this);
-
+    _parent = parent;
     connect(parent,SIGNAL(requestSyncToken()),this,SLOT(APIRequestSyncToken()));
 }
 
 Calendar::~Calendar(void) {
     delete _manager;
+//    disconnect(_parent,SIGNAL(requestSyncToken()),this,SLOT(APIRequestSyncToken()));
+//    disconnect(this,SIGNAL(calendarRetrieveError()),_parent,SLOT(handleAddCalendarError()));
+//    disconnect(this,SIGNAL(calendarAdded(QString)), _parent, SLOT(handleAddCalendarFinished(QString)));
+//    disconnect(this, SIGNAL(refreshEventVisualization()), _parent->parent(), SLOT(handleUpdateMainWindowWidgets()));
+//    disconnect(this,SIGNAL(refreshLocalCalendarData(Calendar*)),_parent,SLOT(handleRefreshCalendar(Calendar*)));
 }
 
 const QString &Calendar::username() const
@@ -47,12 +52,28 @@ const QString &Calendar::displayName() const
     return _displayName;
 }
 
+void Calendar::eraseEventsTodos() {
+    for(Event* ev : _eventsList) {
+        ev->blockSignals(true);
+        delete ev;
+    }
+
+    for(Todo* td : _todosList) {
+        td->blockSignals(true);
+        delete td;
+    }
+
+    _eventsList.clear();
+    _todosList.clear();
+}
+
 /*************************** API Requests to CalDAV Server ****************************/
 
 /**
  * @brief This API Requests a Sync Token to the server
  */
 void Calendar::APIRequestSyncToken(void) {
+    disconnect(_parent,SIGNAL(requestSyncToken()),this,SLOT(APIRequestSyncToken()));
     QNetworkRequest request;
 
     // Building the header of a Sync-Token PROPFIND request
@@ -109,16 +130,17 @@ void Calendar::checkResponseStatus() {
 
     if(_statusCode == 0) {
         //qDebug() << "Bad URL";
-        emit calendarRetrieveError(QString("Wrong URL. Try again!"));
+        emit calendarRetrieveError(QString("Wrong URL. Try again!"), _url);
     }
 
     if (_statusCode >= 200 && _statusCode < 300) {
         //qDebug() << "Good Response: " << _statusCode;
 
-    } else {
+    } else if (_statusCode > 0){
         //qDebug() << "Bad Response: " << _statusCode;
-        emit calendarRetrieveError(QString("Wrong credentials. Try again!"));
+        emit calendarRetrieveError(QString("Wrong credentials. Try again!"), _url);
     }
+
 }
 
 void Calendar::handleRequestSyncTokenFinished(void) {
@@ -204,7 +226,7 @@ void Calendar::handleRequestVCalendarObjectsFinished(void) {
     qDebug() << "requestVCalendarObjectsFinished";
     if(_statusCode >= 200 && _statusCode < 300) {
         parseResponse();
-        emit calendarAdded();
+        emit calendarAdded(_url);
     }
 }
 
@@ -636,10 +658,13 @@ void Calendar::handleAddingVEventFinished(){
         //I can connect two slot to the same signal... but maybe I want to create completely different API for update
         emit eventModifyFinished();
 
-    } else {
-//        //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
-//        if(_statusCode == 412) //412 Precondition Failed
-//            emit signalToRefreshLocalEvents;
+    } else if (_statusCode == 412) {  //412 Precondition Failed
+      //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
+        emit refreshLocalCalendarData(this);
+        emit eventRetrieveError();
+        emit eventModifyRetrieveError();
+    }
+    else {
         qDebug() << "Evento non aggiunto/aggiornato. Errore: " << _statusCode;
         _eventsList.removeLast();
         emit eventRetrieveError();
@@ -692,12 +717,18 @@ void Calendar::handleDeletingVEventFinished(){
     } else {
         if(_statusCode == 412){
             qDebug() << "Evento non aggiunto. Errore: 412. \"Precondition failed\" perchè l'etag è sbagliato" << _statusCode;
+            emit refreshLocalCalendarData(this);
+            QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.setText("L'evento è già stato rimosso da qualcun'altro");
+            msgBox.exec();
+        } else {
+            qDebug() << "Evento non rimosso. Errore: " << _statusCode;
+            QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.setText("L'evento NON è stato rimosso");
+            msgBox.exec();
         }
-        qDebug() << "Evento non rimosso. Errore: " << _statusCode;
-        QMessageBox msgBox;
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setText("L'evento NON è stato rimosso");
-        msgBox.exec();
     }
 }
 
@@ -836,10 +867,13 @@ void Calendar::handleAddingVTodoFinished(){
         getForLastTodoResource(resourceUrl);
         emit todoAddFinished();
         emit todoModifyFinished();
+    }        //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
+    else if(_statusCode == 412) {//412 Precondition Failed
+        emit refreshLocalCalendarData(this);
+        emit todoRetrieveError();
+        emit todoModifyRetrieveError();
     } else {
-        //        //Refreshare calendario in caso di errore (ESEMPIO UPDATE SIMULTANEO DELLA RISORSA)
-        //        if(_statusCode == 412) //412 Precondition Failed
-        //            emit signalToRefreshLocalEvents;
+
         qDebug() << "Todo non aggiunto. Errore: " << _statusCode;
         _todosList.removeLast();
         emit todoRetrieveError();
@@ -896,12 +930,19 @@ void Calendar::handleDeletingVTodoFinished(){
     } else {
         if(_statusCode == 412){
             qDebug() << "Todo non aggiunto. Errore: 412. \"Precondition failed\" perchè l'etag è sbagliato" << _statusCode;
+            emit refreshLocalCalendarData(this);
+            QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.setText("Il Todo è stato già rimosso da qualcun'altro");
+            msgBox.exec();
+        } else {
+
+            qDebug() << "Todo non rimosso. Errore: " << _statusCode;
+            QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.setText("Il Todo NON è stato rimosso");
+            msgBox.exec();
         }
-        qDebug() << "Todo non rimosso. Errore: " << _statusCode;
-        QMessageBox msgBox;
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setText("Il Todo NON è stato rimosso");
-        msgBox.exec();
     }
 }
 

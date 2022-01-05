@@ -27,25 +27,52 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <family>MV Boli</family>
-          <pointsize>18</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Cute Cpp Calendar by Gabriele &amp; Marco</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="wordWrap">
-         <bool>false</bool>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Franklin Gothic Book</family>
+            <pointsize>18</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Cute Cpp Calendar by Gabriele &amp; Marco</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="updateButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -86,8 +113,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>331</width>
-             <height>507</height>
+             <width>334</width>
+             <height>530</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -135,8 +162,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>329</width>
-               <height>238</height>
+               <width>332</width>
+               <height>260</height>
               </rect>
              </property>
             </widget>
@@ -164,8 +191,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>329</width>
-               <height>258</height>
+               <width>332</width>
+               <height>260</height>
               </rect>
              </property>
             </widget>
@@ -207,7 +234,7 @@
      <x>0</x>
      <y>0</y>
      <width>1106</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

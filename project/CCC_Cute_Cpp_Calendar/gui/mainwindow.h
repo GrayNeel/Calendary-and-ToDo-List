@@ -23,6 +23,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void refreshCalendars();
+
 private slots:
     void on_actionApri_calendario_triggered();
     void on_calendarWidget_clicked(const QDate &date);
@@ -53,6 +56,8 @@ private slots:
     void handleAddTodoWithoutError();
     void handleShowInfoTodoDialog(Todo* todo);
     void handleShowModifyTodoDialog();
+
+    void on_updateButton_clicked();
 
 private:
     Ui::MainWindow *ui;

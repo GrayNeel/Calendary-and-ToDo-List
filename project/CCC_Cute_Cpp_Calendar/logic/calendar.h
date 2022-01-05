@@ -36,9 +36,11 @@ public:
 
     const QList<Todo *> &todosList() const;
 
+    void eraseEventsTodos();
+
 signals:
-    void calendarRetrieveError(QString errorMessage);
-    void calendarAdded();
+    void calendarRetrieveError(QString errorMessage, QString url);
+    void calendarAdded(QString addedUrl);
     void removeCalendar(Calendar* cal);
     void showEventDialog(Calendar* cal);
     void eventAddFinished();
@@ -51,6 +53,7 @@ signals:
     void eventModifyRetrieveError();
     void todoModifyFinished();
     void todoModifyRetrieveError();
+    void refreshLocalCalendarData(Calendar *cal);
 
 public slots:
     void handleAddEvent(QString summary, QString location, QString description, QDateTime startDateTime, QDateTime endDateTime);
@@ -102,11 +105,15 @@ private:
 
     QList<Event*> _eventsList;
     QList<Todo*> _todosList;
+
+    QObject* _parent;
+
     void getForLastVEventResource(QUrl resourceUrl);
     void getForLastTodoResource(QUrl resourceUrl);
     void parseResponse();
     void parseCalendarData(QString entity, QString uri, QString etag);
     void APIAddTodo(Todo *todo);
+
 };
 
 #endif // CALENDAR_H

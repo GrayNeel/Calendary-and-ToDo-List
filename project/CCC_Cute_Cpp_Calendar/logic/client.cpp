@@ -24,6 +24,7 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
     connect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     connect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
     connect(cal, SIGNAL(refreshEventVisualization()), this->parent(), SLOT(handleUpdateMainWindowWidgets()));
+    connect(cal,&Calendar::refreshLocalCalendarData,this,&Client::handleRefreshCalendar);
 
     _calendarList.append(cal);
     cal->setUsername(username);
@@ -39,10 +40,15 @@ void Client::handleAddCalendar(QString username, QString password, QString url)
     emit requestSyncToken();
 }
 
-void Client::handleAddCalendarError(QString errorMessage) {
+void Client::handleAddCalendarError(QString errorMessage, QString url) {
     qDebug() << "HandleAddCalendarError: " << errorMessage;
-    Calendar* cal = _calendarList.last();
-    _calendarList.removeLast();
+    //Calendar* cal = _calendarList.last();
+    Calendar* cal;
+    for(Calendar* calendar: _calendarList)
+        if(calendar->url() == url)
+            cal = calendar;
+    _calendarList.removeOne(cal);
+    //_calendarList.removeLast();
 
     disconnect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     disconnect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
@@ -58,8 +64,13 @@ const int Client::getCalendarCount() const
     return _calendarList.count();
 }
 
-void Client::handleAddCalendarFinished() {
-    Calendar* cal = _calendarList.last();
+void Client::handleAddCalendarFinished(QString addedUrl) {
+    //Calendar* cal = _calendarList.last();
+
+    Calendar* cal;
+    for(Calendar* calendar: _calendarList)
+        if(calendar->url() == addedUrl)
+            cal = calendar;
 
     disconnect(cal,&Calendar::calendarRetrieveError,this,&Client::handleAddCalendarError);
     disconnect(cal,&Calendar::calendarAdded, this, &Client::handleAddCalendarFinished);
@@ -70,6 +81,7 @@ void Client::handleAddCalendarFinished() {
 
 void Client::handleRemoveCalendarFromList(Calendar* cal){
     _calendarList.removeOne(cal);
+    cal->eraseEventsTodos();
     delete cal;
     emit updateMainWindow();
     // qDebug() << "Sono lo slot dentro client";
@@ -116,3 +128,33 @@ const QList<Calendar *> &Client::calendarList() const
 {
     return _calendarList;
 }
+
+void Client::handleRefreshCalendars() {
+    QList<Calendar*> oldCalendarList(_calendarList);
+
+    _calendarList.clear();
+
+    for(Calendar* cal : oldCalendarList) {
+        handleRefreshCalendar(cal);
+    }
+
+}
+
+
+void Client::handleRefreshCalendar(Calendar* cal) {
+    QString username = cal->username();
+    QString password = cal->password();
+    QString url = cal->url();
+
+    cal->eraseEventsTodos();
+    cal->blockSignals(true);
+
+    //Prima versione di aggiornamento di un calendario locale
+    //Versioni ottimizzate prevedono l'aggiornamento della lista senza la rimozione dell'oggetto calendario, non potendo riutilizzare però l'api di aggiunta di un nuovo calendario
+    //handleAddCalendar->synctoken...
+    _calendarList.removeOne(cal);
+    delete cal;
+
+    handleAddCalendar(username,password,url);
+}
+
