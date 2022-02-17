@@ -4,7 +4,6 @@
 
 Worker::Worker(QObject *parent) : QObject(parent)
 {
-
 }
 
 void Worker::update()

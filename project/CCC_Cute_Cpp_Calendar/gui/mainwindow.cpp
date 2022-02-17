@@ -40,15 +40,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    workerThread.quit();
+    workerThread.terminate();
+
     delete ui;
     if(dialog != NULL)
         delete dialog;
     if(eventDialog != NULL)
         delete eventDialog;
+    if(todoDialog != NULL)
+        delete todoDialog;
     delete client;
-
-    workerThread.quit();
-    workerThread.wait();
 }
 
 /** Actions from GUI objects **/
