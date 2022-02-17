@@ -45,6 +45,8 @@ set(PROJECT_SOURCES
         logic/event_api.cpp
         logic/todo.h
         logic/todo.cpp
+        logic/worker.h
+        logic/worker.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

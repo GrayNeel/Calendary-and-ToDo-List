@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+
     // Create the client that will handle the calendar list
     client = new Client(this);
     // Create a connection that will help client communicate to GUI that there is an update
@@ -24,6 +25,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set initial state of GUI    
     handleUpdateMainWindowWidgets();
+
+
+
+    Worker* w = new Worker();
+    w->moveToThread(&workerThread);
+    connect(&workerThread, &QThread::finished, w, &QObject::deleteLater);
+    connect(this, &MainWindow::operateThread, w, &Worker::update);
+    connect(w, &Worker::timeoutRefresh, this,  &MainWindow::handleAutomaticRefresh);
+    workerThread.start();
+    emit operateThread();   //lo slot update verrà eseguito in un altro thread
+                            //tale thread ha preso possesso dell'oggetto Worker w con la moveToThread
 }
 
 MainWindow::~MainWindow()
@@ -34,6 +46,9 @@ MainWindow::~MainWindow()
     if(eventDialog != NULL)
         delete eventDialog;
     delete client;
+
+    workerThread.quit();
+    workerThread.wait();
 }
 
 /** Actions from GUI objects **/
@@ -93,7 +108,6 @@ void MainWindow::handleCloseDialog() {
 void MainWindow::eventShowEventDialog(Calendar* cal) {
     if(eventDialog == NULL) {
         eventDialog = new EventDialog(this);
-
         // Pair the eventDialog to the calendar
         eventDialog->setCal(cal);
         eventDialog->setCalName(cal->displayName());
@@ -116,13 +130,14 @@ void MainWindow::eventShowEventDialog(Calendar* cal) {
  * @brief Handle the closing of an EventDialog: for an event added succesfully, unsuccesfully or when the modal is closed by the proper button
  */
 void MainWindow::handleAddEventFinished() {
-    eventDialog->hide();
+    //eventDialog->hide();
 
     /**
      *  The alternative to disconnect is to DO NOT delete the dialog
      *  but clearing the line texts inside of it
      **/
     disconnect(eventDialog, &EventDialog::eventAddEvent, eventDialog->getCal(), &Calendar::handleAddEvent);
+    disconnect(eventDialog, &EventDialog::closeEventDialog, this, &MainWindow::handleAddEventFinished);
     disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventFinished);
     disconnect(eventDialog->getCal(), &Calendar::eventAddFinished, this, &MainWindow::handleAddEventWithoutError);
     disconnect(eventDialog->getCal(), &Calendar::eventRetrieveError, this, &MainWindow::handleAddEventError);
@@ -135,23 +150,25 @@ void MainWindow::handleAddEventFinished() {
  * @brief Shows a popup message that event has not been successfully added
  */
 void MainWindow::handleAddEventError() {
-    handleAddEventFinished();
+    eventDialog->hide();
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.setText("L'evento NON è stato aggiunto correttamente");
     msgBox.exec();
+    handleAddEventFinished();
 }
 
 /**
  * @brief Shows a popup message that event has been successfully added
  */
 void MainWindow::handleAddEventWithoutError() {
-    handleAddEventFinished();
-    handleUpdateMainWindowWidgets();
+    eventDialog->hide();
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Information);
     msgBox.setText("L'evento è stato aggiunto correttamente");
     msgBox.exec();
+    handleAddEventFinished();
+    handleUpdateMainWindowWidgets();
 }
 
 /**
@@ -183,7 +200,7 @@ void MainWindow::eventShowTodoDialog(Calendar* cal) {
  * @brief Handle the closing of an EventDialog: for an event added succesfully, unsuccesfully or when the modal is closed by the proper button
  */
 void MainWindow::handleAddTodoFinished() {
-    todoDialog->hide();
+    //todoDialog->hide();
 
     /**
      *  The alternative to disconnect is to DO NOT delete the dialog
@@ -203,23 +220,25 @@ void MainWindow::handleAddTodoFinished() {
  * @brief Shows a popup message that event has not been successfully added
  */
 void MainWindow::handleAddTodoError() {
-    handleAddTodoFinished();
+    todoDialog->hide();
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.setText("Il To-Do NON è stato aggiunto correttamente");
     msgBox.exec();
+    handleAddTodoFinished();
 }
 
 /**
  * @brief Shows a popup message that event has been successfully added
  */
 void MainWindow::handleAddTodoWithoutError() {
-    handleAddTodoFinished();
-    handleUpdateMainWindowWidgets();
+    todoDialog->hide();
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Information);
     msgBox.setText("Il To-Do è stato aggiunto correttamente");
     msgBox.exec();
+    handleAddTodoFinished();
+    handleUpdateMainWindowWidgets();
 }
 
 
@@ -800,4 +819,11 @@ void MainWindow::on_updateButton_clicked()
 {
     emit refreshCalendars();
 }
+
+void MainWindow::handleAutomaticRefresh()
+{
+    if(dialog==NULL && eventDialog==NULL && todoDialog==NULL)
+        emit refreshCalendars();
+}
+
 

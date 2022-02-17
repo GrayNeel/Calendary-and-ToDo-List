@@ -10,6 +10,7 @@
 #include "tododialog.h"
 
 #include "logic/client.h"
+#include "logic/worker.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,6 +26,7 @@ public:
 
 signals:
     void refreshCalendars();
+    void operateThread();
 
 private slots:
     void on_actionApri_calendario_triggered();
@@ -58,6 +60,7 @@ private slots:
     void handleShowModifyTodoDialog();
 
     void on_updateButton_clicked();
+    void handleAutomaticRefresh();
 
 private:
     Ui::MainWindow *ui;
@@ -75,6 +78,8 @@ private:
     void printEventsList(QList <Event*> eventsList);
     void printTodosList(QList<Todo*> todosList);
     void printEmptyTodos();
+
+    QThread workerThread;
 
 };
 #endif // MAINWINDOW_H

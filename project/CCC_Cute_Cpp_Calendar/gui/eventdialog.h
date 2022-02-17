@@ -52,6 +52,7 @@ private:
     Event* event;
     bool updating;
 
+
     void handleEventResponse(QString errorMessage);
 };
 

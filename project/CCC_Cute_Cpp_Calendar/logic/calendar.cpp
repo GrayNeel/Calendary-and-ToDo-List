@@ -720,7 +720,7 @@ void Calendar::handleDeletingVEventFinished(){
             emit refreshLocalCalendarData(this);
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Critical);
-            msgBox.setText("L'evento è già stato rimosso da qualcun'altro");
+            msgBox.setText("L'evento è già stato rimosso da qualcun altro");
             msgBox.exec();
         } else {
             qDebug() << "Evento non rimosso. Errore: " << _statusCode;
@@ -933,7 +933,7 @@ void Calendar::handleDeletingVTodoFinished(){
             emit refreshLocalCalendarData(this);
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Critical);
-            msgBox.setText("Il Todo è stato già rimosso da qualcun'altro");
+            msgBox.setText("Il Todo è stato già rimosso da qualcun altro");
             msgBox.exec();
         } else {
 

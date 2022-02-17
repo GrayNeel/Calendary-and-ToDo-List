@@ -1,6 +1,4 @@
 #include "eventdialog.h"
-#include "eventdialog.h"
-#include "eventdialog.h"
 #include "ui_eventdialog.h"
 
 EventDialog::EventDialog(QWidget *parent) :
@@ -8,7 +6,6 @@ EventDialog::EventDialog(QWidget *parent) :
     ui(new Ui::EventDialog)
 {
     ui->setupUi(this);
-
     /**
      * Setup validation of Time fields, since hours and minutes are lineEdit
      * and user might insert characters instead of numbers
