@@ -512,7 +512,7 @@ void MainWindow::printEmptyCalendars() {
     firstLine->setAlignment(Qt::AlignVCenter);
 
     QLabel* firstLabel = new QLabel("Nessun calendario.");
-    QLabel* secondLabel = new QLabel("Clicca su File per iniziare!");
+    QLabel* secondLabel = new QLabel("Clicca su Apri per iniziare!");
     firstLabel->setStyleSheet("font-weight: bold;");
     firstLine->addWidget(firstLabel);
     firstLine->addWidget(secondLabel);

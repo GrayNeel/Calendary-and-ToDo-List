@@ -40,6 +40,7 @@
            <font>
             <family>Franklin Gothic Book</family>
             <pointsize>18</pointsize>
+            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -113,8 +114,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>334</width>
-             <height>530</height>
+             <width>331</width>
+             <height>507</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -162,8 +163,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>332</width>
-               <height>260</height>
+               <width>329</width>
+               <height>238</height>
               </rect>
              </property>
             </widget>
@@ -191,8 +192,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>332</width>
-               <height>260</height>
+               <width>329</width>
+               <height>258</height>
               </rect>
              </property>
             </widget>
@@ -234,12 +235,12 @@
      <x>0</x>
      <y>0</y>
      <width>1106</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Apri</string>
     </property>
     <addaction name="actionApri_calendario"/>
    </widget>
