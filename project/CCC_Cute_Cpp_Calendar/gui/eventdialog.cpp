@@ -104,7 +104,7 @@ void EventDialog::on_confirmButton_clicked()
      * End of Date and Time validation
      **/
 
-    // Not implemented yet
+    // if interested
     // QString rrule;
 
     // If this line is reached, validation went well. No response to show.

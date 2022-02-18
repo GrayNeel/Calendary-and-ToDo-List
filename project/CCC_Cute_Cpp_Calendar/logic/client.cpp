@@ -149,9 +149,7 @@ void Client::handleRefreshCalendar(Calendar* cal) {
     cal->eraseEventsTodos();
     cal->blockSignals(true);
 
-    //Prima versione di aggiornamento di un calendario locale
-    //Versioni ottimizzate prevedono l'aggiornamento della lista senza la rimozione dell'oggetto calendario, non potendo riutilizzare però l'api di aggiunta di un nuovo calendario
-    //handleAddCalendar->synctoken...
+    //Aggiornamento di un calendario locale
     _calendarList.removeOne(cal);
     delete cal;
 

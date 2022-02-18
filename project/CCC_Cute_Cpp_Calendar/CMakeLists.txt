@@ -42,7 +42,6 @@ set(PROJECT_SOURCES
         logic/calendar.cpp
         logic/event.h
         logic/event.cpp
-        logic/event_api.cpp
         logic/todo.h
         logic/todo.cpp
         logic/worker.h

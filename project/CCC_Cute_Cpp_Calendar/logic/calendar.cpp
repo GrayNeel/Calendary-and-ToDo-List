@@ -250,8 +250,6 @@ void Calendar::parseResponse() {
 
       QString uri = "";
       QString eTag = "";
-      QString propStatus = "";
-      QString calendarData = "";
 
       QDomElement href = thisResponse.firstChildElement("d:href");
       if (!href.isNull())
@@ -426,9 +424,7 @@ void Calendar::handleModifyEvent(QString oldUid, QString summary, QString locati
             break;
         }
     }
-    //Se l'update andrà a buon fine sul server rimuoverò/aggiornerò anche in locale
-    //oppure
-    //Se l'update non andrà a buon fine (TODO) cancellare la risorsa e fare l'update generale
+    //Se l'update non andrà a buon fine cancellerò la risorsa e farò l'update generale
     Event* newEvent = new Event(QString(oldUid), QString(""), summary, location, description, QString(""), QString(""), startDateTime, endDateTime, _colour);
     QString oldEtag = oldEvent->etag();
     _eventsList.removeOne(oldEvent);
@@ -552,8 +548,8 @@ void Calendar::APIAddEvent(Event* event) {
     _reply = _manager->put(request, buffer);
 
     // When request ends check the status (200 OK or not) and then handle the Reply
-    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
-    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVEventFinished()));
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //This slot is not OK since it handle some signals for calendar Add!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVEventFinished()));  //so we use this
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
@@ -612,7 +608,7 @@ void Calendar::handleGetVEventFinished(){
         else
             qDebug()<< "Errore: nessun header Etag trovato nella risposta";
         //emit eventAddFinished();
-    //TODO rifai richiesta per l'etag
+    //si potrebbe anche rifare richiesta per l'etag
     } else {
         qDebug() << "Get errata: " << _statusCode;
         //_eventsList.removeLast();
@@ -636,7 +632,7 @@ void Calendar::handleGetTodoFinished(){
         else
             qDebug()<< "Errore: nessun header Etag trovato nella risposta";
         //emit todoAddFinished();
-    //TODO rifai richiesta per l'etag
+    //si potrebbe anche rifare richiesta per l'etag
     } else {
         qDebug() << "Get errata: " << _statusCode;
         //_todosList.removeLast();
@@ -649,10 +645,9 @@ void Calendar::handleAddingVEventFinished(){
     //QUrl resourceUri = _reply->url();
     QUrl resourceUrl = _reply->request().url();
 
-    //TODO gestire caso in cui non c'era un etag per quella update e quindi bisogna refreshare il calendario e abortire l'operazione
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Evento aggiunto correttamente";
-        //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
+        //GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (con il nome della risorsa)
         getForLastVEventResource(resourceUrl);
         emit eventAddFinished();
         //I can connect two slot to the same signal... but maybe I want to create completely different API for update
@@ -689,8 +684,8 @@ void Calendar::deleteEvent(Event* event){
     _reply = _manager->sendCustomRequest(request, QByteArray("DELETE"));
 
     // When request ends check the status (200 OK or not) and then handle the Reply
-    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
-    connect(_reply, SIGNAL(finished()), this, SLOT(handleDeletingVEventFinished()));
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //This slot is not OK since it handle some signals for calendar Add!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleDeletingVEventFinished()));    //so we use this
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 
@@ -752,9 +747,7 @@ void Calendar::handleModifyTodo(QString oldUid, QString summary, QDateTime dueDa
             break;
         }
     }
-    //Se l'update andrà a buon fine sul server rimuoverò/aggiornerò anche in locale
-    //oppure
-    //Se l'update non andrà a buon fine (TODO) cancellare la risorsa e fare l'update generale
+    //Se l'update non andrà a buon fine cancellerò la risorsa e farò l'update generale
     Todo* newTodo = new Todo(QString(oldUid), QString(""), summary, dueDateTime, _colour);
     QString oldEtag = oldTodo->etag();
     _todosList.removeOne(oldTodo);
@@ -802,8 +795,8 @@ void Calendar::APIUpdateTodo(Todo* todo, QString etag) {
     _reply = _manager->put(request, buffer);
 
     // When request ends check the status (200 OK or not) and then handle the Reply
-    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
-    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVTodoFinished()));
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //This slot is not OK since it handle some signals for calendar Add!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVTodoFinished()));   //so we use this
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
@@ -849,8 +842,8 @@ void Calendar::APIAddTodo(Todo* todo) {
     _reply = _manager->put(request, buffer);
 
     // When request ends check the status (200 OK or not) and then handle the Reply
-    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
-    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVTodoFinished()));
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //This slot is not OK since it handle some signals for calendar Add!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleAddingVTodoFinished()));   //so we use this
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 }
@@ -860,10 +853,9 @@ void Calendar::handleAddingVTodoFinished(){
     //QUrl resourceUri = _reply->url();
     QUrl resourceUrl = _reply->request().url();
 
-    //TODO gestire caso in cui non c'era un etag per quella update e quindi bisogna refreshare il calendario e abortire l'operazione
     if (_statusCode >= 200 && _statusCode < 300) {
         qDebug() << "Todo aggiunto correttamente";
-        //TODO: GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (da ricavare magari con il nome della risorsa)
+        //GET alla stessa risorsa per prendere l'etag e salvarlo dentro l'evento specifico (con il nome della risorsa)
         getForLastTodoResource(resourceUrl);
         emit todoAddFinished();
         emit todoModifyFinished();
@@ -902,8 +894,8 @@ void Calendar::deleteTodo(Todo* todo){
     _reply = _manager->sendCustomRequest(request, QByteArray("DELETE"));
 
     // When request ends check the status (200 OK or not) and then handle the Reply
-    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //TODO: This slot is not OK since it handle some signals for calendar Add!!
-    connect(_reply, SIGNAL(finished()), this, SLOT(handleDeletingVTodoFinished()));
+    //connect(_reply, SIGNAL(finished()), this, SLOT(checkResponseStatus())); //This slot is not OK since it handle some signals for calendar Add!
+    connect(_reply, SIGNAL(finished()), this, SLOT(handleDeletingVTodoFinished())); //so we use this
     // If authentication is required, provide credentials
     connect(_manager, &QNetworkAccessManager::authenticationRequired, this, &Calendar::handleAuthentication);
 
